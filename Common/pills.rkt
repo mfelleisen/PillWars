@@ -22,13 +22,13 @@
    red0))
 
 ;; ---------------------------------------------------------------------------------------------------
-(require PillWars/Geometry/constants)
+(require PillWars/Common/constants)
 (require PillWars/Common/point)
 (require 2htdp/image)
 
 (module+ test
   (require (submod ".." examples))
-  (require PillWars/Geometry/constants)
+  (require PillWars/Common/constants)
   (require PillWars/Common/point)
   (require rackunit))
 

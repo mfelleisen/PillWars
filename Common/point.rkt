@@ -5,6 +5,8 @@
 ;; -----------------------------------------------------------------------------
 (provide
  #; {type Point = Complex}
+
+ make-point 
    
  #; {Point -> (values Real Real)}
  ->values
@@ -16,10 +18,13 @@
  direction+
 
  #; {Point -> Boolean}
- outside?)
+ outside?
+
+ #; {Point Point -> Direction}
+ point->direction)
 
 ;; -----------------------------------------------------------------------------
-(require PillWars/Geometry/constants)
+(require PillWars/Common/constants)
 
 ;; -----------------------------------------------------------------------------
 (define (->values p)
@@ -35,3 +40,8 @@
   (define-values [p.x p.y] (->values p))
   (or (< p.x 0) (> p.x WIDTH)
       (< p.y 0) (> p.y HEIGHT)))
+
+(define (point->direction p q)
+  (- q p))
+
+(define make-point make-rectangular)

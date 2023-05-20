@@ -5,7 +5,7 @@
 (provide BG)
 
 ;; -----------------------------------------------------------------------------
-(require PillWars/Geometry/constants)
+(require PillWars/Common/constants)
 (require 2htdp/image)
 
 ;; -----------------------------------------------------------------------------

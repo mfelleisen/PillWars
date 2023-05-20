@@ -1,9 +1,16 @@
 #lang racket
 
-;; a data representation of fighters 
+;; a data representation of fighters
+
+;; todo: formulate fighter imagine in terms of geometry 
 
 ;; ---------------------------------------------------------------------------------------------------
 (provide
+ #; {type Fighter = [fighter Point Direction]}
+ 
+ fighter-posn
+ fighter-velocity
+ 
  add-fighter
  rotate-fighter
  move-fighter
@@ -45,26 +52,49 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (struct fighter [posn velocity] #:transparent)
-#; {type Fighter   = [fighter Point Direction]}
 
-(define FI
-  (let ()
-    (define FI0  (isosceles-triangle 40 20 'solid 'green))
-    (define PT   (circle 3 'solid 'orange))
-    (define DISK (circle (image-height FI0) 'solid (color 255 255 255 0)))
-    (rotate -90 (overlay PT (overlay/align 'center 'top FI0 DISK)))))
+(define (circle-with-cross-hair r mode color)
+  (let* ([s (circle r mode color)]
+         [s (scene+line s 0 r (* 2 r) r 'black)]
+         [s (scene+line s r 0 r (* 2 r) 'black)])
+    s))
+
+(define (wedge-centered-at-tip l α mode c)
+  (let* ([s (wedge l α mode c)]
+         [d (circle l 'solid (color 255 255 255 0))]
+         [delta-x
+          (cond
+            [(<= α 90)  0]
+            [(<= α 180) (* l (cos (deg->rad (- 180 α))))]
+            [else       l])]
+         [delta-y
+          (cond
+            [(<= α 180) 0]
+            [else (* l (sin (deg->rad (- α 180))))])]
+         [s (place-image/align s (- l delta-x) (+ l delta-y) 'left 'bottom d)]
+         [s (overlay (circle 3 'solid 'orange) s)])
+    s))
+
+(define fighter-image
+  (let* ([s (wedge-centered-at-tip 160 (rad->deg (* 2 MAX-RAD)) 'solid 'yellow)]
+         [s (rotate (- (rad->deg MAX-RAD)) s)]
+         [t (wedge-centered-at-tip 40 20 'solid 'green)]
+         [t (rotate -10 t)]
+         [s (overlay t s)])
+    s))
 
 #; {Fighter Image -> Image}
 ;; add fighter `f` to the given scene `s0`
 (define (add-fighter this scene0)
   (match-define [fighter posn vel] this)
   (define-values (p.x p.y) (->values posn))
-  (define-values [v.x v.y] (->values (+ posn (* 40 vel))))
+  (define-values [v.x v.y] (->values (+ posn (* (/ 160 (magnitude vel)) vel))))
   (let* ([s scene0]
-         [s (place-image (rotate (rad->deg (angle (conjugate vel))) FI) p.x p.y s)]
+         [r (rad->deg (angle (conjugate vel)))]
+         [s (place-image (rotate r fighter-image) p.x p.y s)]
          [s (scene+line s p.x p.y v.x v.y 'black)])
     s))
-  
+
 #; {Fighter -> Fighter}
 (define (move-fighter this [delta 1])
   (match-define [fighter p v] this)
@@ -133,6 +163,9 @@
   (define fighter5 (fighter (direction+ (pill-posn red0) (* -1 steps-2 1+1i)) -1+1i))
   (define fighter4 (rotate-fighter fighter2 (rotate->reach fighter2 pill*0)))
   (define fighter3 (move-fighter fighter4 (+ steps-2 3))))
+
+(module+ test
+  (add-fighter fighter2 (empty-scene 400 400)))
   
 (module+ test
   (check-within (rotate-fighter (fighter 0.0 0+i) (/ pi 2)) (fighter 0.0 +1) .001))

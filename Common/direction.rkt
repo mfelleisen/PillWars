@@ -9,6 +9,8 @@
  #; {Direction Radian -> Direction}
  dir-rotate
 
+ delta-angle
+ 
  ;; doesn't really belong here 
  rad->deg
  deg->rad)
@@ -25,3 +27,6 @@
 #; {Degree -> Radian}
 (define (deg->rad d)
   (* pi (/ d 180)))
+
+(define (delta-angle α θ)
+  (- (angle α) (angle θ)))
