@@ -5,14 +5,18 @@
 ;; ---------------------------------------------------------------------------------------------------
 (provide
  #; {type State = [state [Listof Fighter] [Listof Pill]] || the first fighter is mine}
+
+ state-fighters
+ state-pills
  
  state-mouse-click-ok?
+ mouse-click-on-pill?
+ 
  rotate-my-fighter
  move-my-fighter
  eat-my-fighter
  
  draw-state
- state-fighters
  fighter-action-strategy-1)
 
 (module+ examples
@@ -24,9 +28,10 @@
 (require PillWars/Common/pills)
 (require PillWars/Common/direction)
 (require PillWars/Common/constants)
-
 (require (prefix-in point: PillWars/Common/point))
+(require PillWars/AI/strategy-1)
 (require PillWars/Lib/image)
+
 (require 2htdp/image)
 
 (module+ examples
@@ -37,6 +42,7 @@
   (require (submod ".." examples))
   (require (submod PillWars/Common/fighter examples))
   (require (submod PillWars/Common/pills examples))
+  (require (submod PillWars/AI/strategy-1 examples))
   (require PillWars/Common/fighter)
   (require PillWars/Common/action)
   (require PillWars/World/constants)
@@ -53,21 +59,22 @@
   (match-define [state fighters pills] state0)
   (state (cons next (rest fighters)) pills))
 
-#; {State -> Image}
-(define (draw-state-with scene state x y)
-  (define f (state-my-fighter state))
-  (define p (fighter-posn f))
-  (define-values [f.x f.y] (point:->values p))
-  (let* ([s [(draw-state scene) state]]
-         [s (place-image (text "x" 12 'black) x y s)]
-         [s (add-line s x y f.x f.y 'black)])
+(define ((draw-state BG) s)
+  (match-define [state fighter* pill*] s) 
+  (let* ([s BG]
+         [s (add-objects s fighter* add-fighter)]
+         [s (add-objects s pill* add-pill)])
     s))
 
+#; {State N N -> (U Radian #false)}
 (define (state-mouse-click-ok? state x y)
   (define f (state-my-fighter state))
-  (define θ (turn-angle (fighter-posn f) (fighter-velocity f) (point:make-point x y)))
-  (and (<= (abs θ) MAX-RAD) θ))
+  (define p (fighter-posn f))
+  (define q (point:make-point x y))
+  (define θ (turn-angle p (fighter-velocity f) q))
+  (and (<= (point:distance p q) RADAR) (<= (abs θ) MAX-RAD) θ))
 
+#; {Point Direction Point -> Radian}
 (define (turn-angle this-point this-dir other)
   (define direction-from-p-to-q (point:point->direction this-point other))
   (delta-angle direction-from-p-to-q this-dir))
@@ -80,16 +87,14 @@
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 00)) 0.0             0.1 "no turn"))
 
 (module+ test
-  
   (check-false (state-mouse-click-ok? state0 10 10))
   (check-true (number? (state-mouse-click-ok? state0 50 100))))
 
-(define ((draw-state BG) s)
-  (match-define [state fighter* pill*] s) 
-  (let* ([s BG]
-         [s (add-objects s fighter* add-fighter)]
-         [s (add-objects s pill* add-pill)])
-    s))
+#; {State N N -> (U Pill #false)}
+(define (mouse-click-on-pill? state0 x y)
+  (match-define [state fighter* pill*] state0)
+  (define posn (point:make-point x y))
+  (find-pill posn pill*))
 
 #; {State Action -> State}
 (define (execute state0 action)
@@ -110,19 +115,21 @@
 
 #; {State Pill -> State}
 (define (eat-my-fighter state0 [pill0 #false])
-  (define pill (or pill0 (find-pill (fighter-posn (state-my-fighter state0)) (state-pills state0))))
   (match-define [state fighter* pill*] state0)
+  (define posn  (fighter-posn (state-my-fighter state0)))
+  (define pill  (or pill0 (find-pill posn pill*)))
   (state fighter* (remove pill pill*)))
 
-(define (find-pill p pills)
-  (match pills 
-    ['() (error 'find-pill "can't happen")]
-    [(cons fst others)
-     (if (<= (point:distance (pill-posn fst) p) RS)
-         fst
-         (find-pill p others))]))
+#; {Point [Listof Pill] -> (U Pill #false)}
+;; find a pill that is "close to" p, if any
+(define (find-pill p pills0)
+  (let find-pill ([pills pills0])
+    (match pills 
+      ['() #false]
+      [(cons fst others)
+       (if (<= (point:distance (pill-posn fst) p) RS) fst (find-pill others))])))
 
-
+;; ---------------------------------------------------------------------------------------------------
 #; {State -> State}
 (define (fighter-action-strategy-1 state0)
   (define mine   (state-my-fighter state0))

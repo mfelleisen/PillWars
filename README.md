@@ -1,38 +1,47 @@
 
-## Pills War
+## Red Blue War
 
-a random, made-up game for Sw Dev F'2023
+.. is a turn-based game taking place in a space filled with red and blue pills.
+Every player has one fighter and scrambles to collect as many points by
+"destroying" red and/or blue enemies.
 
-### The Rough Idea
+Destroying a red enemy accelerates the fighter by a bit.
+Destroying a blue enemy merely means collecting points. 
 
-.. is a turn-based game taking place in a space filled with red pills and blue
-pills.  Every player has one fighter and scrambles to collect as many points by
-"eating" red pills and/or blue pills.
-
-- When a player eats a red pill, it gains between 1 and 5 points (inclusive) and
-  accelerates between 10% and 30% (inclusive). 
-
-- When a player east a blue pill, it gains between 7 and 10 points (inclusive).
-
-Each fighter starts with the same velocity (speed plus direction) and can turn
-up to 30deg clockwise or counter-clockwise at any point during the game. 
+### The Basic Rules 
 
 During a turn, a player may perform one of the following actions:
 
-- eat a pill if its fighter's focus is on the pill;
+- destroy a pill if its fighter's focus is on the pill;
 - move forward one step according to its current velocity; or
-- rotate clockwise or counter-clockwise.
+- rotate clockwise or counter-clockwise by some degrees. 
 
-A player is eliminated if it navigates its fighter off the game space. 
+If a fighter attempts to destroy an enemy but its focus point isn't on it, the
+owner loses a point. 
 
-The game ends when all pills are eaten or all fighters are eliminated. The
-player with the most points wins. If two or more player have the same maximal
-number of points, the fastest player wins. If, at this point, two or more
-players are tied, the players closest to the origin tie for first place. 
+A player is eliminated if the fighter navigates outside the game space.
 
-#### Strategies
+The game ends when all enemies are destroyed or all fighters are eliminated.
 
-A strategy can be _opponent-agnostic_ or _opponent-sensitive_.
+The player with the most points wins.
+
+### A Player's Actions
+
+A _human player_ can navigate his fighter with either mouse clicks
+
+- button-down in the yellow space of a fighter changes its direction
+- button-down in any white space moves "my" fighter straight ahead
+- button-down on an "enemy" "fires" IF the fighter is "on" the enemy 
+
+or key strokes:
+
+- ↑ for forward
+- ← for left
+- → for right
+- SPACE for "fire" ("destroy enemy" that the fighter is sitting on)
+
+An _AI player_ can make plans and navigate its fighter according to some
+strategy. A strategy can be _opponent-agnostic_ or _opponent-sensitive_.
 
 Here is simplistic opponent-agnostic one:
 

@@ -6,13 +6,7 @@
  #; {type Action = [rotate Deg] || [eat Pill] || [mov Pill]}
  (struct-out mov)
  (struct-out eat)
- (struct-out rot)
- MAX-RAD
- STEP-RAD)
-
-;; -----------------------------------------------------------------------------
-(define MAX-RAD (/ pi 3))
-(define STEP-RAD (/ MAX-RAD 30))
+ (struct-out rot))
 
 ;; -----------------------------------------------------------------------------
 (struct mov [posn] #:transparent)
