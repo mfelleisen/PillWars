@@ -1,11 +1,11 @@
 
-## Red Blue War
+## Red Blue War 
 
 .. is a turn-based game taking place in a space filled with red and blue pills.
 Every player has one fighter and scrambles to collect as many points by
 "destroying" red and/or blue enemies.
 
-Destroying a red enemy accelerates the fighter by a bit.
+Destroying a red enemy accelerates the fighter by a hidden percentage.
 Destroying a blue enemy merely means collecting points. 
 
 ### The Basic Rules 
@@ -17,7 +17,7 @@ During a turn, a player may perform one of the following actions:
 - rotate clockwise or counter-clockwise by some degrees. 
 
 If a fighter attempts to destroy an enemy but its focus point isn't on it, the
-owner loses a point. 
+owner loses a point. A player's score cannot go below 0. 
 
 A player is eliminated if the fighter navigates outside the game space.
 
