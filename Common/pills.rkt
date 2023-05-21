@@ -4,9 +4,11 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (provide 
- #; {type Pill = [blue Point] || [red Point Degree]}
+ #; {type Pill = [blue Point N] || [red Point N Degree]}
  pill?
  pill-posn
+ pill-score
+ red-acceleration
 
  ;; for sample runs 
  blue? 
@@ -14,6 +16,8 @@
  
  add-pill
 
+ #; {Pill Point -> Boolean}
+ ;; is it sitting atop the image 
  on-pill?)
 
 (module+ examples
@@ -33,31 +37,35 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(struct pill [posn] #:transparent)
+(struct pill [posn score] #:transparent)
 (struct blue pill [] #:transparent)
-(struct red pill [points] #:transparent)
+(struct red pill [acceleration] #:transparent)
 
 (define BL (circle RS 'solid 'blue))
 (define RD (circle RS 'solid 'red))
 
 #; {Pill Image -> Image}
 ;; add `pill` to the given `scene0` 
-(define (add-pill this s0)
+(define (add-pill this scene0)
   (define-values (p img)
     (match this
-      [[red posn value] (values posn RD)]
-      [[blue posn]      (values posn BL)]))
+      [[red posn s value] (values posn (+score RD s))]
+      [[blue posn s]      (values posn (+score BL s))]))
   (define-values [x y] (->values p))
-  (place-image img x y s0))
+  (place-image img x y scene0))
 
-#; {Pill Figher -> Boolean}
+#; {Image N -> Image}
+(define (+score img n)
+  (overlay (text (~a n) 12 'white) img))
+
+;; ---------------------------------------------------------------------------------------------------
 (define (on-pill? this posn)
   (<= (distance posn (pill-posn this)) RS))
 
 ;; ---------------------------------------------------------------------------------------------------
 (module+ examples
-  (define blue0 (blue (make-rectangular (/ WIDTH 2) (/ WIDTH 10))))
-  (define red0 (red (make-rectangular (/ WIDTH 4) (/ WIDTH 2)) 'dummy)))
+  (define blue0 (blue (make-point (/ WIDTH 2) (/ WIDTH 10)) 9))
+  (define red0  (red  (make-point (/ WIDTH 4) (/ WIDTH 2))  4 .10)))
 
 (module+ test
   (check-true (on-pill? blue0 (pill-posn blue0)))

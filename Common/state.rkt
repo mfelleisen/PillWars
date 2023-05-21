@@ -6,18 +6,31 @@
 (provide
  #; {type State = [state [Listof Fighter] [Listof Pill]] || the first fighter is mine}
 
+ state-my-fighter 
+
  state-fighters
  state-pills
- 
+
+ #; {State Scene -> Scene}
+ draw-state
+
+ #; {State N N -> (U Pill #false)}
  state-mouse-click-ok?
+
+ #; {State N N -> (U Radian #false)}
  mouse-click-on-pill?
- 
+
+ #; {State Radian -> State}
  rotate-my-fighter
+
+ #; {State -> State}
  move-my-fighter
+
+ #; {State Pill -> State}
  eat-my-fighter
  
- draw-state
- fighter-action-strategy-1)
+ #; {State Action -> State}
+ execute)
 
 (module+ examples
   (provide state0))
@@ -59,14 +72,20 @@
   (match-define [state fighters pills] state0)
   (state (cons next (rest fighters)) pills))
 
+;; ---------------------------------------------------------------------------------------------------
 (define ((draw-state BG) s)
   (match-define [state fighter* pill*] s) 
   (let* ([s BG]
-         [s (add-objects s fighter* add-fighter)]
-         [s (add-objects s pill* add-pill)])
+         [s (add-objects s pill* add-pill)]
+         [s (add-objects s fighter* add-fighter)])
     s))
 
-#; {State N N -> (U Radian #false)}
+;; ---------------------------------------------------------------------------------------------------
+(define (mouse-click-on-pill? state0 x y)
+  (match-define [state fighter* pill*] state0)
+  (define posn (point:make-point x y))
+  (find-pill posn pill*))
+
 (define (state-mouse-click-ok? state x y)
   (define f (state-my-fighter state))
   (define p (fighter-posn f))
@@ -79,6 +98,82 @@
   (define direction-from-p-to-q (point:point->direction this-point other))
   (delta-angle direction-from-p-to-q this-dir))
 
+;; ---------------------------------------------------------------------------------------------------
+(define (rotate-my-fighter state0 rad)
+  (define mine (state-my-fighter state0))
+  (state-my-fighter-update state0 (rotate-fighter mine rad)))
+
+(define (move-my-fighter state0)
+  (define mine (state-my-fighter state0))
+  (state-my-fighter-update state0 (move-fighter mine)))
+
+(define (eat-my-fighter state0 [pill0 #false])
+  (match-define [state fighter* pill*] state0)
+  (define f-0   (state-my-fighter state0))
+  (define posn  (fighter-posn f-0))
+  (define pill  (or pill0 (find-pill posn pill*)))
+  (cond
+    [(boolean? pill)
+     (define f-1 (eat-fighter f-0 -1))
+     (state-my-fighter-update state0 f-1)]
+    [(red? pill) 
+     (define f-1
+       (let* ([s (eat-fighter f-0 (pill-score pill))]
+              [s (accelerate-fighter s (red-acceleration pill))])
+         s))
+     (let* ([s state0]
+            [s (state fighter* (remove pill pill*))]
+            [s (state-my-fighter-update s f-1)])
+       s)]
+    [(blue? pill)
+     (define f-1 (eat-fighter f-0 (pill-score pill)))
+     (let* ([s state0]
+            [s (state fighter* (remove pill pill*))]
+            [s (state-my-fighter-update s f-1)])
+       s)]))
+     
+#; {Point [Listof Pill] -> (U Pill #false)}
+;; find a pill that is "close to" p, if any
+(define (find-pill p pills0)
+  (let find-pill ([pills pills0])
+    (match pills 
+      ['() #false]
+      [(cons fst others)
+       (if (<= (point:distance (pill-posn fst) p) RS) fst (find-pill others))])))
+
+;; ---------------------------------------------------------------------------------------------------
+(define (execute state0 action)
+  (match action
+    [(rot rad)  (rotate-my-fighter state0 rad)]
+    [(mov _)    (move-my-fighter state0)]
+    [(eat pill) (eat-my-fighter state0 pill)]))
+
+;; ---------------------------------------------------------------------------------------------------
+(module+ examples
+  (define state0 (state [list fighter0] [list blue0 red0])))
+
+(module+ test
+  (check-true (image? ([draw-state BG] state0))))
+
+(module+ test
+  (define state1 (state (list fighter1) pill*0))
+  (define state1-red  (state (list (eat-fighter fighter1 (pill-score red0))) (list)))
+
+  (define state2 (state (list fighter5) pill*0))
+  (define state2-red- (state (list (eat-fighter fighter5 -1)) pill*0))
+  
+  (define state4 (state (list fighter4) pill*0))
+  (define state4-mov (state (list (move-fighter fighter4)) pill*0))
+
+  (define state5 (state (list fighter5) pill*0))
+  (define state5-max (state (list (rotate-fighter fighter5 MAX-RAD)) pill*0))
+
+  (check-equal? (eat-my-fighter state2) state2-red-)
+
+  (check-equal? (execute state1 (eat red0)) state1-red)
+  (check-equal? (execute state4 (mov 'me)) state4-mov)
+  (check-equal? (execute state5 (rot MAX-RAD)) state5-max))
+
 (module+ test 
   (check-within (turn-angle 20+20i 10+0i (point:make-point 10 10)) (- (/ pi 4) pi) 0.1 "left turn")
   (check-within (turn-angle 20+20i 10+0i (point:make-point 10 20)) pi              0.1 "flip")
@@ -90,73 +185,15 @@
   (check-false (state-mouse-click-ok? state0 10 10))
   (check-true (number? (state-mouse-click-ok? state0 50 100))))
 
-#; {State N N -> (U Pill #false)}
-(define (mouse-click-on-pill? state0 x y)
-  (match-define [state fighter* pill*] state0)
-  (define posn (point:make-point x y))
-  (find-pill posn pill*))
-
-#; {State Action -> State}
-(define (execute state0 action)
-  (match action
-    [(rot rad)  (rotate-my-fighter state0 rad)]
-    [(mov _)    (move-my-fighter state0)]
-    [(eat pill) (eat-my-fighter state0 pill)]))
-
-#; {State Radian -> State}
-(define (rotate-my-fighter state0 rad)
-  (define mine (state-my-fighter state0))
-  (state-my-fighter-update state0 (rotate-fighter mine rad)))
-
-#; {State -> State}
-(define (move-my-fighter state0)
-  (define mine (state-my-fighter state0))
-  (state-my-fighter-update state0 (move-fighter mine)))
-
-#; {State Pill -> State}
-(define (eat-my-fighter state0 [pill0 #false])
-  (match-define [state fighter* pill*] state0)
-  (define posn  (fighter-posn (state-my-fighter state0)))
-  (define pill  (or pill0 (find-pill posn pill*)))
-  (state fighter* (remove pill pill*)))
-
-#; {Point [Listof Pill] -> (U Pill #false)}
-;; find a pill that is "close to" p, if any
-(define (find-pill p pills0)
-  (let find-pill ([pills pills0])
-    (match pills 
-      ['() #false]
-      [(cons fst others)
-       (if (<= (point:distance (pill-posn fst) p) RS) fst (find-pill others))])))
-
 ;; ---------------------------------------------------------------------------------------------------
+;; for running an AI strategy 
+
 #; {State -> State}
 (define (fighter-action-strategy-1 state0)
   (define mine   (state-my-fighter state0))
   (define pill*  (filter-map (λ (p) (and (red? p) p)) (state-pills state0)))
   (define action (strategy-1 mine pill*))
   (execute state0 action))
-
-;; ---------------------------------------------------------------------------------------------------
-(module+ examples
-  (define state0 (state [list fighter0] [list blue0 red0])))
-
-(module+ test
-  (check-true (image? ([draw-state BG] state0))))
-
-(module+ test
-  (define state1 (state (list fighter1) pill*0))
-  (define state1-red (state (list fighter1) (list)))
-
-  (define state4 (state (list fighter4) pill*0))
-  (define state4-mov (state (list (move-fighter fighter4)) pill*0))
-
-  (define state5 (state (list fighter5) pill*0))
-  (define state5-max (state (list (rotate-fighter fighter5 MAX-RAD)) pill*0))
-
-  (check-equal? (execute state1 (eat red0)) state1-red)
-  (check-equal? (execute state4 (mov 'me)) state4-mov)
-  (check-equal? (execute state5 (rot MAX-RAD)) state5-max))
 
 (module+ test
   (check-equal? (fighter-action-strategy-1 state1) state1-red))

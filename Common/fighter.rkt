@@ -6,7 +6,7 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (provide
- #; {type Fighter = [fighter Point Direction]}
+ #; {type Fighter = [fighter Point Direction N]}
  
  fighter-posn
  fighter-velocity
@@ -14,8 +14,14 @@
  #; {Fighter Scene -> Scene}
  add-fighter
 
- #; {Fighter -> Fighter}
+ #; {Fighter Radian -> Fighter}
  rotate-fighter
+
+ #; {Fighter (U PositiveInteger -1) -> Fighter}
+ eat-fighter
+
+ #; {Fighter (0,1) -> Fighter}
+ accelerate-fighter
 
  #; {Fighter -> Fighter}
  move-fighter)
@@ -30,7 +36,8 @@
    fighter2
    fighter5
    fighter6
-   fighter6++))
+   fighter6++
+   fighter6--))
   
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/constants)
@@ -50,50 +57,62 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(struct fighter [posn velocity] #:transparent)
+(struct fighter [posn velocity score] #:transparent)
 
 (define fighter-image
   (let* ([s (wedge-centered-at-tip RADAR (rad->deg (* 2 MAX-RAD)) 'solid 'yellow)]
          [s (rotate (- (rad->deg MAX-RAD)) s)]
          [t (wedge-centered-at-tip FWING (rad->deg FANGLE) 'solid 'green)]
-         [t (rotate -10 t)]
+         [t (rotate (/ (rad->deg FANGLE) -2) t)]
          [s (overlay t s)])
     s))
 
 ;; add fighter `f` to the given scene `s0`
 (define (add-fighter this scene0)
-  (match-define [fighter posn vel] this)
+  (match-define [fighter posn vel score] this)
   (define-values (p.x p.y) (->values posn))
-  (define-values [v.x v.y] (->values (+ posn (* (/ 160 (magnitude vel)) vel))))
+  (define-values [v.x v.y] (->values (+ posn (* (/ FWING .5 (magnitude vel)) vel))))
   (let* ([s scene0]
          [r (rad->deg (angle (conjugate vel)))]
-         [s (place-image (rotate r fighter-image) p.x p.y s)]
-         [s (scene+line s p.x p.y v.x v.y 'black)])
+         [g (overlay/offset (text (~a score) 12 'black) -70 0 fighter-image)]
+         [f (rotate r g)]
+         [s (place-image f p.x p.y s)])
     s))
+
+(module+ test
+  (add-fighter (fighter 100+100i 5+5i 22) (empty-scene 400 400)))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (move-fighter this [delta 1])
-  (match-define [fighter p v] this)
-  (fighter (direction+ p (* delta v)) v))
+  (match-define [fighter p v s] this)
+  (fighter (direction+ p (* delta v)) v s))
 
-#; {Fighter Radian -> Fighter}
+(define (accelerate-fighter this %)
+  (match-define [fighter p v s] this)
+  (fighter p (* (+ 1 %) v) s))
+
 (define (rotate-fighter this rad)
-  (match-define [fighter p v] this)
-  (fighter p (dir-rotate v rad)))
+  (match-define [fighter p v s] this)
+  (fighter p (dir-rotate v rad) s))
+
+(define (eat-fighter this score)
+  (match-define [fighter p v s] this)
+  (fighter p v (max 0 (+ s score))))
 
 ;; ---------------------------------------------------------------------------------------------------
 (module+ examples
   (define pill*0 (list red0))
 
-  (define fighter0 (fighter 100+50i -9+6i))
-  (define fighter0++ (fighter 91+56i -9+6i))
-  (define fighter1 (fighter (pill-posn red0) 0+0i))
+  (define fighter0   (fighter 100+50i -9+6i 0))
+  (define fighter0++ (fighter  91+56i -9+6i 0))
+  (define fighter1   (fighter (pill-posn red0) 0+0i 0))
   (define steps-2  20)
-  (define fighter2 (fighter (direction+ (pill-posn red0) (* -1 steps-2 1+1i)) +0+1i))
-  (define fighter5 (fighter (direction+ (pill-posn red0) (* -1 steps-2 1+1i)) -1+1i))
+  (define fighter2   (fighter (direction+ (pill-posn red0) (* -1 steps-2 1+1i)) +0+1i 0))
+  (define fighter5   (fighter (direction+ (pill-posn red0) (* -1 steps-2 1+1i)) -1+1i 0))
 
-  (define fighter6 (fighter 0.0 0+i))
-  (define fighter6++ (fighter 0.0 +1)))
+  (define fighter6   (fighter 0.0  0+1i 0))
+  (define fighter6-- (fighter 0.0  (* 1.1 0+1i) 0))
+  (define fighter6++ (fighter 0.0 +1+0i 0)))
 
 (module+ test
   (define mtf (empty-scene 200 200))
@@ -101,6 +120,8 @@
   (check-true (image? (add-fighter fighter0 mtf))))
 
 (module+ test
+  (check-within (accelerate-fighter fighter6 .1) fighter6-- .01)
+  (check-within (eat-fighter fighter6 -1) fighter6 .01)
   (check-within (move-fighter fighter0) fighter0++ .01)
   (check-within (rotate-fighter fighter6 (/ pi 2)) fighter6++ .001))
 

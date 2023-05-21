@@ -35,8 +35,8 @@
   (cond
     [(key=? " " ke)     (eat-my-fighter s)]
     [(key=? "up" ke)    (move-my-fighter s)]
-    [(key=? "right" ke) (rotate-my-fighter s (/ pi +60))]
-    [(key=? "left" ke)  (rotate-my-fighter s (/ pi -60))]
+    [(key=? "right" ke) (rotate-my-fighter s (/ pi -60))]
+    [(key=? "left" ke)  (rotate-my-fighter s (/ pi +60))]
     [else s]))
 
 #; {State N N MouseEvent -> State}
