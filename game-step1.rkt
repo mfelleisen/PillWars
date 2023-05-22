@@ -18,11 +18,11 @@
   (big-bang state0
     ;; the first clause is for an AI player 
     #;
-    [on-tick fighter-action-strategy-1 1 30]
-    [to-draw (draw-state BG)]
-    [on-mouse turn-by-mouse]
-    [on-key navigate-by-key]
-    [name my-name]
+    [on-tick   fighter-action-strategy-1 1 30]
+    [to-draw   (draw-state BG)]
+    [on-mouse  turn-by-mouse]
+    [on-key    navigate-by-key]
+    [name      my-name]
     [stop-when game-over? (draw-state BG)]))
 
 #; {State KeyEvent -> State}

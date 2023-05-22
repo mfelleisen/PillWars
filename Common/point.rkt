@@ -6,6 +6,9 @@
 (provide
  #; {type Point = Complex}
 
+ #; {-> Point}
+ create-random-point
+
  make-point 
    
  #; {Point -> (values Real Real)}
@@ -45,3 +48,6 @@
   (- q p))
 
 (define make-point make-rectangular)
+
+(define (create-random-point)
+  (make-point (random WIDTH) (random HEIGHT)))

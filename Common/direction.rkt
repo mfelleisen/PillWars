@@ -5,6 +5,9 @@
 ;; -----------------------------------------------------------------------------
 (provide
  #; {type Direction = Complex}
+
+ #; {-> Direction}
+ create-random-direction 
    
  #; {Direction Radian -> Direction}
  dir-rotate
@@ -30,3 +33,6 @@
 
 (define (delta-angle α θ)
   (- (angle α) (angle θ)))
+
+(define (create-random-direction)
+  (make-rectangular (/ (+ 1 (random 10)) 10) (/ (+ 1 (random 10)) 10)))

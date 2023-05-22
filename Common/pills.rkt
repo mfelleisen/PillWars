@@ -5,6 +5,11 @@
 ;; ---------------------------------------------------------------------------------------------------
 (provide 
  #; {type Pill = [blue Point N] || [red Point N Degree]}
+
+ #; {N -> [Listof Pill]}
+ ;; create `n` red pills and supplement them with some blue pills 
+ create-pills 
+
  pill?
  pill-posn
  pill-score
@@ -33,6 +38,7 @@
 (module+ test
   (require (submod ".." examples))
   (require PillWars/Common/constants)
+  (require PillWars/Lib/image)
   (require PillWars/Common/point)
   (require rackunit))
 
@@ -41,6 +47,26 @@
 (struct blue pill [] #:transparent)
 (struct red pill [acceleration] #:transparent)
 
+(define MAX-PILLS 30)
+
+;; create `r#` red pills; ASSUME `(< r# MAX-PILLS)` 
+(define (create-pills r#)
+  (append
+   (create-red-pills r# red-pills)
+   (create-red-pills (- MAX-PILLS r#) blue-pills)))
+
+(define red-pills (λ _ (red (create-random-point) (+ 1 (random 5)) (/ (+ 1 (random 5)) 10))))
+(define blue-pills (λ _ (blue (create-random-point) (+ 5 (random 10)))))
+
+#; {N -> [Listof Pill || red?]}
+(define (create-red-pills r# creator)
+  (define try (build-list r# creator))
+  (define pure (remove-duplicates try))
+  (if (= (length pure) r#)
+      pure
+      (append pure (create-red-pills (- r# (length pure))))))
+
+;; ---------------------------------------------------------------------------------------------------
 (define BL (circle RS 'solid 'blue))
 (define RD (circle RS 'solid 'red))
 
@@ -66,6 +92,9 @@
 (module+ examples
   (define blue0 (blue (make-point (/ WIDTH 2) (/ WIDTH 10)) 9))
   (define red0  (red  (make-point (/ WIDTH 4) (/ WIDTH 2))  4 .10)))
+
+(module+ test
+  (add-objects (empty-scene WIDTH HEIGHT) (create-pills 20) add-pill))
 
 (module+ test
   (check-true (on-pill? blue0 (pill-posn blue0)))

@@ -6,6 +6,9 @@
 (provide
  #; {type State = [state [Listof Fighter] [Listof Pill]] || the first fighter is mine}
 
+ #; {String -> State}
+ create-state
+
  state-my-fighter 
 
  state-fighters
@@ -64,6 +67,11 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (struct state [fighters pills] #:transparent)
+
+(define (create-state name)
+  (define my-fighter (create-fighter name))
+  (define the-pills  (create-pills 20))
+  (state (list my-fighter) the-pills))
 
 (define (state-my-fighter state0)
   (first (state-fighters state0)))
