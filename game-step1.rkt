@@ -15,7 +15,8 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; {String -> State}
 (define (main my-name [state0 #false])
-  (big-bang state0
+  (define start-with (or state0 (create-state my-name)))
+  (big-bang start-with
     ;; the first clause is for an AI player 
     #;
     [on-tick   fighter-action-strategy-1 1 30]
@@ -59,4 +60,4 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (main "Benjamin" state0))
+  (main "Benjamin" #; state0))
