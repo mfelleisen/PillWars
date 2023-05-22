@@ -113,7 +113,10 @@
 
 (define (move-my-fighter state0)
   (define mine (state-my-fighter state0))
-  (state-my-fighter-update state0 (move-fighter mine)))
+  (define next (move-fighter mine))
+  (if (boolean? next)
+      (state '() (state-pills state0))
+      (state-my-fighter-update state0 next)))
 
 (define (eat-my-fighter state0 [pill0 #false])
   (match-define [state fighter* pill*] state0)

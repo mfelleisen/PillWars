@@ -94,7 +94,8 @@
 ;; ---------------------------------------------------------------------------------------------------
 (define (move-fighter this [delta 1])
   (match-define [fighter p v s n] this)
-  (fighter (direction+ p (* delta v)) v s n))
+  (define posn (direction+ p (* delta v)))
+  (and (not (outside? posn)) (fighter posn v s n)))
 
 (define (accelerate-fighter this %)
   (match-define [fighter p v s n] this)
