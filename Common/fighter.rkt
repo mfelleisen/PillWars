@@ -12,9 +12,12 @@
  ;; a random fighter 
  create-fighter 
 
+ fighter?
  fighter-posn
  fighter-velocity
-
+ fighter-score
+ fighter-name
+ 
  #; {Fighter Scene -> Scene}
  add-fighter
 

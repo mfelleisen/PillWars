@@ -11,7 +11,10 @@
  wedge-centered-at-tip
 
  #; {Real Mode Color -> Image}
- circle-with-cross-hair)
+ circle-with-cross-hair
+
+ #; {Natural Image Image -> Image}
+ above/join)
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/direction)
@@ -55,12 +58,21 @@
     [else       l]))
 
 ;; ---------------------------------------------------------------------------------------------------
+(define (above/join n img1 img2)
+  (above/align 'left img1 (rectangle 1 n 'solid 'white) img2))
+
+;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (add-objects (empty-scene 100 100) `[,(circle 3 'solid 'red)] (λ (c s) (place-image c 50 50 s)))
+  (add-objects (empty-scene 100 100) `[,(circle 3 'solid 'red)] (λ (c s) (place-image c 50 50 s))))
 
-  (circle-with-cross-hair 10 'solid 'red)
+(module+ test
+  (circle-with-cross-hair 10 'solid 'red))
 
+(module+ test
   (wedge-centered-at-tip 100  30 'solid 'red)
   (wedge-centered-at-tip 100 110 'solid 'green)
   (wedge-centered-at-tip 100 190 'solid 'yellow)
   (wedge-centered-at-tip 100 300 'solid 'blue))
+
+(module+ test
+  (above/join 5 (text "hello" 12 'purple) (text "world" 12 'purple)))

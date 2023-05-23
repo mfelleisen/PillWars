@@ -41,7 +41,7 @@
 ;; 2. if any of the pills is reachable in the given direction, _move_ forward.
 ;; 3. otherwise, change direction counter-clockwise by STEP-RAD until a pill is reachable. _Rotate_.
 ;; TODO 4. still not? change direction clockwise by STEP-RAD until a pill is reachable. _Rotate_.
-;; 5. else: return default action. 
+;; 5. else: return default action.
 
 (define (strategy-1 mine pill*)
   (cond
@@ -65,8 +65,9 @@
 (define (can-reach this pill*)
   (let can-reach ([this this])
     (cond
-      [(on-any-pill this pill*) => identity]
+      [(boolean? this)          #false]
       [(f-outside? this)        #false]
+      [(on-any-pill this pill*) => identity]
       [else (can-reach (move-fighter this))])))
 
 (define (f-outside? this)

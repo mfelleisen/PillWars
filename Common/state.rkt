@@ -7,15 +7,24 @@
  #; {type State = [state [Listof Fighter] [Listof Pill]] || the first fighter is mine}
 
  #; {String -> State}
+ ;; a random state 
  create-state
 
- state-my-fighter 
+ #; {(U String Symbol) State -> State}
+ ;; make a player with the give name and add it to the front of the player list of `state`
+ add-player-to-front
 
+ state-my-fighter 
  state-fighters
  state-pills
 
+ #; {State -> State}
+ ;; swap the first two (and should be only) players
+ swap-two-players
+
  #; {State Scene -> Scene}
  draw-state
+ draw-state-with-winners 
 
  #; {State N N -> (U Pill #false)}
  state-mouse-click-ok?
@@ -31,7 +40,14 @@
 
  #; {State Pill -> State}
  eat-my-fighter
+
+ #; {State -> [Listof String]}
+ winners
  
+ #; {[Fighter [Listof Pill] -> Action] -> [State -> State]}
+ (contract-out
+  [ai-strategy (-> (-> fighter? (listof pill?) action?) (-> state? state?))])
+
  #; {State Action -> State}
  execute)
 
@@ -73,12 +89,21 @@
   (define the-pills  (create-pills 20))
   (state (list my-fighter) the-pills))
 
+(define (add-player-to-front its-name state0)
+  (define my-fighter (create-fighter its-name))
+  (state (cons my-fighter (state-fighters state0)) (state-pills state0)))
+
 (define (state-my-fighter state0)
   (first (state-fighters state0)))
 
 (define (state-my-fighter-update state0 next)
   (match-define [state fighters pills] state0)
   (state (cons next (rest fighters)) pills))
+
+(define (swap-two-players state0)
+  (match state0
+    [[state (list f1 f2) pill*] (state (list f2 f1) pill*)]
+    [_ (eprintf "warning -- no two players\n") state0]))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define ((draw-state BG) s)
@@ -87,6 +112,13 @@
          [s (add-objects s pill* add-pill)]
          [s (add-objects s fighter* add-fighter)])
     s))
+
+(define ((draw-state-with-winners BG) s)
+  (define scene0 [(draw-state BG) s])
+  (define ranks  (winners s))
+  (define texts  (map (λ (r) (text r 12 'purple)) ranks))
+  (define 1text  (foldl (λ (next-r so-far) (above/join 5 so-far next-r)) empty-image texts))
+  (place-image 1text (/ WIDTH 10) (/ HEIGHT 10) scene0))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (mouse-click-on-pill? state0 x y)
@@ -115,7 +147,7 @@
   (define mine (state-my-fighter state0))
   (define next (move-fighter mine))
   (if (boolean? next)
-      (state '() (state-pills state0))
+      (state (rest (state-fighters state0)) (state-pills state0))
       (state-my-fighter-update state0 next)))
 
 (define (eat-my-fighter state0 [pill0 #false])
@@ -153,6 +185,23 @@
        (if (<= (point:distance (pill-posn fst) p) RS) fst (find-pill others))])))
 
 ;; ---------------------------------------------------------------------------------------------------
+
+(define (winners state0)
+  (define players (state-fighters state0))
+  (define sorted  (sort players > #:key fighter-score))
+  (for/list ([f sorted])
+    (~a (~a (fighter-name f) #:max-width (string-length "benjamin")) ": " (fighter-score f))))
+                 
+
+;; ---------------------------------------------------------------------------------------------------
+(define (ai-strategy strategy)
+  (define (apply-strategy state0)
+    (match-define [state (cons f fighters) pills] state0)
+    (define action (strategy f pills))
+    (define next   (execute state0 action))
+    next)
+  apply-strategy)
+
 (define (execute state0 action)
   (match action
     [(rot rad)  (rotate-my-fighter state0 rad)]
@@ -164,6 +213,7 @@
   (define state0 (state [list fighter0] [list blue0 red0])))
 
 (module+ test
+  ([draw-state-with-winners BG] state0)
   (check-true (image? ([draw-state BG] state0))))
 
 (module+ test
