@@ -24,6 +24,7 @@
 (require PillWars/Common/action)
 (require PillWars/Common/constants)
 (require PillWars/Common/fighter)
+(require PillWars/Common/direction)
 (require PillWars/Common/point)
 (require PillWars/Common/pills)
 
@@ -32,6 +33,8 @@
   (require (submod PillWars/Common/fighter examples)))
 
 (module+ test
+  (require (submod PillWars/Common/pills examples))
+  (require (submod PillWars/Common/fighter examples))
   (require (submod ".." examples))
   (require rackunit))
 
@@ -48,7 +51,15 @@
     [(on-any-pill mine pill*)   => eat]
     [(can-reach mine pill*)     => mov]
     [(rotate->reach mine pill*) => rot]
-    [else                       (rot MAX-RAD)]))
+    [else                       (rot (random-degree))]))
+
+(define (random-degree)
+  (let* ([s MAX-RAD]
+         [s (rad->deg s)]
+         [s (round s)]
+         [s (inexact->exact s)]
+         [s (random s)])
+    (deg->rad s)))
 
 #; {Fighter [Listof Pill] -> (U #false Radian)}
 ;; determine whether any rotation between STEP-RAD and MAX-RAD gets `this` to any pill, if any
@@ -66,12 +77,8 @@
   (let can-reach ([this this])
     (cond
       [(boolean? this)          #false]
-      [(f-outside? this)        #false]
       [(on-any-pill this pill*) => identity]
       [else (can-reach (move-fighter this))])))
-
-(define (f-outside? this)
-  (outside? (fighter-posn this)))
 
 #; {Fighter [Listof Pill] -> (U Pill #false)}
 ;; is the fighter sitting on any pill? 
@@ -81,6 +88,10 @@
   (for/first ([p pill*] #:when (on-pill? p mine)) p))
 
 ;; ---------------------------------------------------------------------------------------------------
+
+(module+ test
+  (strategy-1 fighter-stuck pills-stuck))
+
 (module+ examples
   (define pill*0 (list red0))
   (define fighter4 (rotate-fighter fighter2 (rotate->reach fighter2 pill*0)))
