@@ -28,7 +28,8 @@
 (module+ examples
   (provide
    blue0
-   red0))
+   red0
+   pills-stuck))
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/constants)
@@ -91,7 +92,9 @@
 ;; ---------------------------------------------------------------------------------------------------
 (module+ examples
   (define blue0 (blue (make-point (/ WIDTH 2) (/ WIDTH 10)) 9))
-  (define red0  (red  (make-point (/ WIDTH 4) (/ WIDTH 2))  4 .10)))
+  (define red0  (red  (make-point (/ WIDTH 4) (/ WIDTH 2))  4 .10))
+  
+  (define pills-stuck (list (blue 320+417i 14))))
 
 (module+ test
   (add-objects (empty-scene WIDTH HEIGHT) (create-pills 20) add-pill))

@@ -44,7 +44,8 @@
    fighter5
    fighter6
    fighter6++
-   fighter6--))
+   fighter6--
+   fighter-stuck))
   
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/constants)
@@ -125,7 +126,9 @@
 
   (define fighter6   (fighter 0.0  0+1i         0 ""))
   (define fighter6-- (fighter 0.0  (* 1.1 0+1i) 0 ""))
-  (define fighter6++ (fighter 0.0  +1+0i        0 "")))
+  (define fighter6++ (fighter 0.0  +1+0i        0 ""))
+
+  (define fighter-stuck (fighter 364.464+195.141i -59.95336772506+67.38529472708845i 0 'AI)))
 
 (module+ test
   (define mtf (empty-scene 200 200))
