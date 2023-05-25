@@ -55,7 +55,6 @@
     (big-bang start-with
       [to-draw    (strip (draw-state BG))]
       [register   server-ip]
-      #;
       [on-mouse   (enable turn-by-mouse)]
       [on-key     (enable navigate-by-key)]
       [on-receive human-receive]

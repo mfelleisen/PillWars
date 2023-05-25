@@ -54,7 +54,7 @@
 (define (turn-by-mouse s x y me)
   (cond
     [(mouse=? "button-down" me) (turn-by-click s x y)]
-    [else s]))
+    [else #false]))
 
 #; {State N N -> State}
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
