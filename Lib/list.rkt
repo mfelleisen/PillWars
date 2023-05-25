@@ -22,4 +22,5 @@
 
 (module+ test
   (require (submod ".."))
-  (remove-ref '[a] 1))
+  (require rackunit)
+  (check-exn #px"proper index" (λ () (remove-ref '[a] 1))))
