@@ -1,11 +1,12 @@
 #lang racket
 
-;; display and handle the game for a solo human player 
+;; display and handle the game for a solo, local human player 
+;; display and handle the game for a local human player competing against an "AI"
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/state)
 (require PillWars/Common/fighter)
-(require PillWars/World/handlers-for-human-nav)
+(require PillWars/World/handlers-for-local-nav)
 (require PillWars/AI/strategy-1)
 (require PillWars/World/constants)
 (require 2htdp/universe)
@@ -51,7 +52,7 @@
 #; {State -> Interactive}
 ;; add an AI player and set it up to go first 
 (define (create-interactive state)
-  (interactive AI (add-player-to-front AI state)))
+  (interactive AI (add-fighter-to-front AI state)))
 
 #; {Tag Tag [Handler State] -> Interactive Any ... -> Interactive}
 (define ((enable tag other handler) i . others)
@@ -78,7 +79,6 @@
 #; {Interactive -> [Listof String]}
 (define (interactive-winners i)
   (match-define [interactive whose state] i)
-  (pretty-print i)
   (winners state))
   
 

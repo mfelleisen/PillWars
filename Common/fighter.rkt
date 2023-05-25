@@ -65,7 +65,7 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(struct fighter [posn velocity score name] #:transparent)
+(struct fighter [posn velocity score name] #:prefab)
 
 (define (create-fighter name)
   (fighter (create-random-point) (create-random-direction) 0 name))

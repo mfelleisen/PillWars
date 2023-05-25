@@ -15,8 +15,8 @@
   STEP-RAD)
 
 ;; -----------------------------------------------------------------------------
-(define WIDTH  800)
-(define HEIGHT 800)
+(define WIDTH  1200)
+(define HEIGHT  800)
 (define RS (/ WIDTH 40))
 
 (define MAX-RAD  (/ pi 3))

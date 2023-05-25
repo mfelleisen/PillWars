@@ -44,9 +44,9 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(struct pill [posn score] #:transparent)
-(struct blue pill [] #:transparent)
-(struct red pill [acceleration] #:transparent)
+(struct pill [posn score] #:prefab)
+(struct blue pill [] #:prefab)
+(struct red pill [acceleration] #:prefab)
 
 (define MAX-PILLS 30)
 

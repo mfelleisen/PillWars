@@ -1,4 +1,3 @@
-
 ## Red Blue War 
 
 .. is a turn-based game taking place in a space filled with red and blue pills.
