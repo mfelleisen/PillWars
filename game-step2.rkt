@@ -50,7 +50,7 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; a turn-based game betweeen a human player and an AI 
 (define (local-main my-name (server-ip LOCALHOST)) 
-  (define start-with (create-plus (add-fighter-to-front my-name (empty-state))))
+  (define start-with (create-plus (add-pill-at-fighter (add-fighter-to-front my-name (empty-state)))))
   (define end-with
     (big-bang start-with
       [to-draw    (strip (draw-state BG))]
@@ -60,7 +60,6 @@
       [on-receive human-receive]
       [name       my-name]
       [state #true]
-      #;
       [stop-when  (strip game-over?) (strip (draw-state-with-winners BG))]))
   (plus-winners end-with))
 

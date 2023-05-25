@@ -8,7 +8,11 @@
 
  #; {N -> [Listof Pill]}
  ;; create `n` red pills and supplement them with some blue pills 
- create-pills 
+ create-pills
+
+ #; {Point -> Pill}
+ ;; make a 0-value pill for a specific place 
+ pill-at
 
  pill?
  pill-posn
@@ -49,6 +53,10 @@
 (struct red pill [acceleration] #:prefab)
 
 (define MAX-PILLS 30)
+
+(define (pill-at p)
+  (if (< (random 100) 60) (red p 0 .00) (blue p 0)))
+         
 
 ;; create `r#` red pills; ASSUME `(< r# MAX-PILLS)` 
 (define (create-pills r#)

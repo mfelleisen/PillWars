@@ -20,6 +20,10 @@
  ;; make a player with the give name and add it to the front of the player list of `state`
  add-fighter-to-front
 
+ #; {State -> State}
+ ;; add 1 pill to a state with exactly 1 fighter 
+ add-pill-at-fighter
+
  state-my-fighter 
  state-fighters
  state-pills
@@ -121,6 +125,12 @@
      (state (cons my-fighter (state-fighters state0)) (state-pills state0))]
     [else
      (state (cons its-name-or-a-fighter (state-fighters state0)) (state-pills state0))]))
+
+(define (add-pill-at-fighter state0)
+  (match-define [state (list f) '()] state0)
+  (define p (fighter-posn f))
+  (state (list f) (list (pill-at p))))
+
 
 (define (state-my-fighter state0)
   (first (state-fighters state0)))
