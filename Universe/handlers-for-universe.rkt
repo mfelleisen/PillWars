@@ -91,9 +91,12 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 (define (act-on-request us action)
   (match-define [ustate worlds state] us)
   (define state+ (execute state action))
-  (if (empty? (state-fighters state+))
-      #false
-      (ustate (list-rotate worlds) (next-turn state+))))
+  (cond
+    [(empty? (state-fighters state+)) #false]
+    [(= (length (state-fighters state)) (length (state-fighters state+)))
+     (ustate (list-rotate worlds) (next-turn state+))]
+    [else ;; meaning, the player whose turn it was requested an "illegal" action (out of bounds) 
+     (ustate (rest worlds) state+)]))
   
 ;; ---------------------------------------------------------------------------------------------------
 ;; add a fighter for the new world until there are `n` fighters 
@@ -142,7 +145,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
   (define state1** (remove-fighter state1 0))
   (define ustate1** (list iworld3 (ustate (list iworld3) state1**)))
   (define bundle (make-bundle ustate1** (list (make-mail iworld3 (your-turn state1**))) '[]))
-  (check-equal? (remove-player ustate1 iworld1) bundle) "remove player starts new turn")
+  (check-equal? (remove-player ustate1 iworld1) bundle "remove player starts new turn"))
 
 (module+ test ;; end-turn with act-on-request and start-turn (implied)
   (let* ([action  (mov 'silly)]
