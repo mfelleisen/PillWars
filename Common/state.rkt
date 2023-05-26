@@ -185,10 +185,12 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (mouse-click-on-pill? state0 x y)
-  (match-define [state fighter* pill*] state0)
-  (define posn (point:make-point x y))
-  (find-pill posn pill*))
+  (define fi-posn (fighter-posn (state-my-fighter state0)))
+  (define mc-posn (point:make-point x y))
+  (define is-pill (find-pill mc-posn (state-pills state0)))
+  (if (not is-pill) #false (and (on-pill? is-pill fi-posn) is-pill)))
 
+  
 (define (state-mouse-click-turn? state x y)
   (define f (state-my-fighter state))
   (define p (fighter-posn f))
