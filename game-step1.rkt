@@ -17,7 +17,7 @@
   (define start-with (or state0 (create-state my-name)))
   (big-bang start-with
     [to-draw   (draw-state BG)]
-    [on-mouse  turn-by-mouse]
+    [on-mouse  act-on-button-down]
     [on-key    navigate-by-key]
     [name      my-name]
     [stop-when game-over? (draw-state BG)]))
@@ -29,7 +29,7 @@
     (big-bang (create-interactive start-with)
      [on-tick   (enable AI #;disable: HUMAN (ai-strategy strategy-1))]
      [to-draw   (strip (draw-state BG))]
-     [on-mouse  (enable HUMAN #;disable: AI turn-by-mouse)]
+     [on-mouse  (enable HUMAN #;disable: AI act-on-button-down)]
      [on-key    (enable HUMAN #;disable: AI navigate-by-key)]
      [name      my-name]
      [stop-when (strip game-over?) (strip (draw-state-with-winners BG))]))

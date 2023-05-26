@@ -72,20 +72,19 @@
 ;; ---------------------------------------------------------------------------------------------------
 (module+ test
 
-  (check-equal? (navigate-by-key state0 "up") (move-my-fighter state0))
-  (check-equal? (navigate-by-key state0 "left") (rotate-my-fighter state0 LEFT))
-  (check-equal? (navigate-by-key state0 "right") (rotate-my-fighter state0 RIGHT))
-  (check-equal? (navigate-by-key state0 " ") (eat-my-fighter state0))
-  (check-equal? (navigate-by-key state0 "a") state0)
+  (check-equal? (navigate-by-key state0 "up") (mov 'dummy))
+  (check-true (rot? (navigate-by-key state0 "left")))
+  (check-true (rot? (navigate-by-key state0 "right")))
+  (check-equal? (navigate-by-key state0 " ") (eat (fighter-posn (first (state-fighters state0)))))
+  (check-false (navigate-by-key state0 "a"))
 
-  (check-equal? (turn-by-mouse state0 10 50 "button-up") state0)
-  (check-equal? (turn-by-mouse state0 10 50 "button-down")
-                (rotate-my-fighter state0 (- (state-mouse-click-turn? state0 10 50))))
+  (check-false (turn-by-mouse state0 10 50 "button-up"))
+  (check-true (rot? (turn-by-mouse state0 10 50 "button-down")))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
-  (check-equal? (turn-by-mouse state0 p.x p.y "button-down") (eat-my-fighter state0 a-pill))
+  (check-true (eat? (turn-by-mouse state0 p.x p.y "button-down")))
 
-  (check-equal? (turn-by-mouse state0 (+ RS p.x 1) p.y "button-down") (move-my-fighter state0))
+  (check-equal? (turn-by-mouse state0 (+ RS p.x 1) p.y "button-down") (mov 'dummy))
 
   (check-false (game-over? state0) "state0 is an okay starting state"))
