@@ -11,8 +11,8 @@
   FWING
   FANGLE 
 
-  MAX-RAD ;; the movability of a fighter 
-  STEP-RAD)
+  MAX-RAD) ;; the movability of a fighter
+  
 
 ;; -----------------------------------------------------------------------------
 (define WIDTH  1200)
@@ -20,7 +20,6 @@
 (define RS (/ WIDTH 40))
 
 (define MAX-RAD  (/ pi 3))
-(define STEP-RAD (/ MAX-RAD 30))
 
 (define RADAR (/ WIDTH 5))
 (define FWING  (/ RADAR 3))
