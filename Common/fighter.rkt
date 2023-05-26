@@ -72,10 +72,13 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 
+(define fighter-radar (color 100 77 99 33) #;'yellow)
+(define fighter-color (color 0 255 0 66) #;'green)
+
 (define fighter-image
-  (let* ([s (wedge-centered-at-tip RADAR (rad->deg (* 2 MAX-RAD)) 'solid 'yellow)]
+  (let* ([s (wedge-centered-at-tip RADAR (rad->deg (* 2 MAX-RAD)) 'solid fighter-radar)]
          [s (rotate (- (rad->deg MAX-RAD)) s)]
-         [t (wedge-centered-at-tip FWING (rad->deg FANGLE) 'solid 'green)]
+         [t (wedge-centered-at-tip FWING (rad->deg FANGLE) 'solid fighter-color)]
          [t (rotate (/ (rad->deg FANGLE) -2) t)]
          [s (overlay t s)])
     s))
@@ -93,7 +96,11 @@
     s))
 
 (module+ test
-  (add-fighter (fighter 100+100i 5+5i 22 "Benjamin") (empty-scene 400 400)))
+  (define scene0 (empty-scene 400 400))
+  (define scene1 (place-image (rectangle 10 10 'solid 'red) 120 120 scene0))
+  (define scene2 (place-image (rectangle 10 10 'solid 'red) 200 200 scene1))
+  
+  (add-fighter (fighter 100+100i 5+5i 22 "Benjamin") scene2))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (move-fighter this [delta 1])
