@@ -11,6 +11,7 @@
   (provide
    red0
    pill*0
+   pill*1
    
    fighter0
    fighter1
@@ -39,6 +40,10 @@
   (require rackunit))
 
 ;; -------------------------------------------------------------------------------------------------
+(define STEP-RAD (/ MAX-RAD 30))
+(define LEFT     MAX-RAD)
+(define RIGHT    (- MAX-RAD))
+
 ;; STRATEGY: search for action that brings `this` fighter closer to some selected pill
 ;; 1. if it sits on a pill, _eat_ it. 
 ;; 2. if any of the pills is reachable in the given direction, _move_ forward.
@@ -48,9 +53,16 @@
 
 (define (strategy-1 mine pill*)
   (cond
-    [(on-any-pill mine pill*)   => eat]
-    [(can-reach mine pill*)     => mov]
-    [(rotate->reach mine pill*) => rot]
+    [(on-any-pill mine pill*)         => eat]
+    [(can-reach mine pill*)           => mov]
+    [(rotate->reach mine pill* LEFT)  => rot]
+    [(rotate->reach mine pill* RIGHT) => rot]
+
+    ;; TODO:
+    ;; rotate by 360deg.
+    ;; If no reachable pill can be found, `(gup "no more pills reachable from here")`
+    ;; Otherwise, try random or try moving in this direction? 
+
     [else                       (rot (random-degree))]))
 
 (define (random-degree)
@@ -61,15 +73,23 @@
          [s (random s)])
     (deg->rad s)))
 
-#; {Fighter [Listof Pill] -> (U #false Radian)}
-;; determine whether any rotation between STEP-RAD and MAX-RAD gets `this` to any pill, if any
-(define (rotate->reach this pill* [rad STEP-RAD])
-  (let rotate->reach ([rad STEP-RAD])
+#; {Fighter [Listof Pill] Radian -> (U #false Radian)}
+;; can any rotation between `(* left-or-right STEP-RAD)` and `end` move `this` to any pill?
+(define (rotate->reach this pill* end)
+  (define delta (* (sign end) STEP-RAD))
+  (let rotate->reach ([rad delta])
     (define try (rotate-fighter this rad))
     (cond
-      [(can-reach try pill*) rad]
-      [(> rad MAX-RAD)       #false]
-      [else (rotate->reach (+ rad STEP-RAD))])))
+      [(can-reach try pill*)  rad]
+      [(> (abs rad) (abs end)) #false]
+      [else (rotate->reach (+ rad delta))])))
+
+#; {Real -> {+1, -1}}
+(define (sign x)
+  (cond
+    [(> x 0) +1]
+    [(< x 0) -1]
+    [else (error 'sign "bad argument: ~a" x)]))
 
 #; {Fighter [Listof Pill] -> (U #false Pill)}
 ;; determine the first pill in `pill*` that `this` can reach, if any 
@@ -88,32 +108,32 @@
   (for/first ([p pill*] #:when (on-pill? p mine)) p))
 
 ;; ---------------------------------------------------------------------------------------------------
-
-(module+ test
-  (strategy-1 fighter-stuck pills-stuck))
-
 (module+ examples
   (define pill*0 (list red0))
-  (define fighter4 (rotate-fighter fighter2 (rotate->reach fighter2 pill*0)))
+  (define pill*1 [list red0 blue0])
+  (define fighter4 (rotate-fighter fighter2 (rotate->reach fighter2 pill*0 MAX-RAD)))
   (define fighter3 (move-fighter fighter4 (+ steps-2 3))))
 
-(module+ test
-  (check-true  (number? (rotate->reach fighter2 pill*0)))
-  #;
-  (check-false (rotate->reach fighter5 pill*0)))
+(module+ test ;; rotate first, then reachable 
+  (check-true  (number? (rotate->reach fighter2 pill*0 MAX-RAD)))
+  (check-equal? (rotate->reach fighter5 pill*0 MAX-RAD) STEP-RAD))
 
-(module+ test
-  (check-true (pill? (on-any-pill fighter1 pill*0)))
-  (check-true (pill? (on-any-pill fighter3 pill*0)))
+(module+ test ;; on-any-pill in the list 
+  (check-equal? (on-any-pill fighter1 pill*0) (first pill*0))
   (check-false (on-any-pill fighter0 pill*0)))
 
-(module+ test
-  (check-true (pill? (can-reach fighter1 pill*0)))
-  (check-true (pill? (can-reach fighter4  pill*0)))
+(module+ test ;; can-reach?
+  (check-equal? (can-reach fighter1 pill*0) (first pill*0))
   (check-false (can-reach fighter0 pill*0)))
 
-(module+ test
+#;
+(module+ test ;; strategy-1
   (check-equal? (strategy-1 fighter1 pill*0) (eat red0))
-  (check-equal? (strategy-1 fighter4 pill*0) (mov red0))
-  (check-true (rot? (strategy-1 fighter5 pill*0)))
-  (check-true (rot? (strategy-1 fighter5 pill*0))))
+  (check-equal? (strategy-1 fighter4 pill*0) (eat red0))
+  (check-true (eat? (strategy-1 fighter5 pill*0))))
+
+(module+ test ;; strategy-1
+
+  (define fighter0+ (for/fold ([s fighter0]) ([i 60]) (rotate-fighter s (/ pi 60))))
+  (check-true (rot? (strategy-1 fighter0+ pill*1)) "right turn")
+  (check-true (rot? (strategy-1 fighter-stuck pills-stuck)) "random rotating at the moment"))
