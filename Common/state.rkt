@@ -29,21 +29,23 @@
  state-pills
  
  #; {State Fighter -> State}
+ ;; re-organize the state so that the given fighter shows up as the first one
+ ;; (for sending states to clients)
  fighter-first
 
  #; {State -> State}
  next-turn
-
+ 
  #; {State -> State}
  ;; swap the first two (and should be only) players
  swap-two-players
 
- #; {State Scene -> Scene}
+ #; {Scene -> State -> Scene}
  draw-state
  draw-state-with-winners 
 
  #; {State N N -> (U Pill #false)}
- state-mouse-click-ok?
+ state-mouse-click-turn?
 
  #; {State N N -> (U Radian #false)}
  mouse-click-on-pill?
@@ -56,10 +58,11 @@
  move-my-fighter
 
  #; {State Pill -> State}
+ ;; 
  eat-my-fighter
 
  #; {State N -> State}
- ;; remove the `n` the fighter 
+ ;; remove the `n`th the fighter 
  remove-fighter
 
  #; {State -> [Listof String]}
@@ -67,7 +70,7 @@
  
  #; {[Fighter [Listof Pill] -> Action] -> [State -> State]}
  (contract-out
-  [ai-strategy (-> (-> fighter? (listof pill?) action?) (-> state? state?))]
+  [ai-strategy        (-> (-> fighter? (listof pill?) action?) (-> state? state?))]
   [ai-action-strategy (-> (-> fighter? (listof pill?) action?) state? action?)])
 
  #; {State Action -> State}
@@ -92,10 +95,12 @@
 
 (module+ examples
   (require (submod PillWars/Common/fighter examples))
-  (require (submod PillWars/Common/pills examples)))
+  (require (submod PillWars/Common/pills examples))
+  (require (submod PillWars/AI/strategy-1 examples)))
 
 (module+ test
   (require (submod ".." examples))
+  (require (submod PillWars/Common/fighter examples))
   (require (submod PillWars/Common/pills examples))
   (require (submod PillWars/AI/strategy-1 examples))
   (require PillWars/Common/fighter)
@@ -131,7 +136,6 @@
   (define p (fighter-posn f))
   (state (list f) (list (pill-at p))))
 
-
 (define (state-my-fighter state0)
   (first (state-fighters state0)))
 
@@ -146,6 +150,9 @@
          [s (state fighter* (remove pill pill*))]
          [s (state-my-fighter-update s f-1)])
     s))
+
+(define (flush-pills s)
+  (state (state-fighters s) '[]))
 
 (define (swap-two-players state0)
   (match state0
@@ -182,7 +189,7 @@
   (define posn (point:make-point x y))
   (find-pill posn pill*))
 
-(define (state-mouse-click-ok? state x y)
+(define (state-mouse-click-turn? state x y)
   (define f (state-my-fighter state))
   (define p (fighter-posn f))
   (define q (point:make-point x y))
@@ -262,69 +269,57 @@
   (match action
     [(rot rad)  (rotate-my-fighter state0 rad)]
     [(mov _)    (move-my-fighter state0)]
-    [(eat pill) (eat-my-fighter state0 pill)]))
+    [(eat pill) (eat-my-fighter state0 pill)]
+    [(gup msg)  (flush-pills state0)]))
 
 ;; ---------------------------------------------------------------------------------------------------
 (module+ examples
-  (define state0 (state [list fighter0] [list blue0 red0]))
-  (define state0-- (state [list] [list blue0 red0])))
+  (define state0 (state [list fighter0] pill*1))
+  (define state0-- (state [list] pill*1)))
 
-(module+ test
+(module+ test ;; drawing states 
   ([draw-state-with-winners BG] state0)
+  [(draw-state BG) (state (list fighter-stuck) pills-stuck)]
   (check-true (image? ([draw-state BG] state0))))
 
-(module+ test
-  (define state1 (state (list fighter1) pill*0))
-  (define state1-red  (state (list (eat-fighter fighter1 (pill-score red0))) (list)))
-
-  (define state2 (state (list fighter5) pill*0))
-  (define state2-red- (state (list (eat-fighter fighter5 -1)) pill*0))
-  
-  (define state4 (state (list fighter4) pill*0))
-  (define state4-mov (state (list (move-fighter fighter4)) pill*0))
-
-  (define state5 (state (list fighter5) pill*0))
-  (define state5-max (state (list (rotate-fighter fighter5 MAX-RAD)) pill*0))
+(module+ test ;; eat-my-fighter 
+  (define fighter5+ (for/fold ([f fighter5]) ([i 10])(move-fighter f)))
+  (define state2 (state (list fighter5+) pill*0))
+  (define state2-red- (state (list (eat-fighter fighter5+ -1)) pill*0))
+  (check-equal? (eat-my-fighter state2) state2-red- "eat pill that the fighter supposedly sits on")
 
   (define state0-blue (state [list (eat-fighter fighter0 (pill-score blue0))] [list red0]))
-  (check-equal? (eat-my-fighter state2) state2-red-)
-  (check-equal? (eat-my-fighter state0 blue0) state0-blue)
+  (check-equal? (eat-my-fighter state0 blue0) state0-blue "eat a specified pill"))
 
-  (check-equal? (execute state1 (eat red0)) state1-red)
-  (check-equal? (execute state4 (mov 'me)) state4-mov)
-  (check-equal? (execute state5 (rot MAX-RAD)) state5-max))
-
-(module+ test 
+(module+ test ;; turn-angle 
   (check-within (turn-angle 20+20i 10+0i (point:make-point 10 10)) (- (/ pi 4) pi) 0.1 "left turn")
   (check-within (turn-angle 20+20i 10+0i (point:make-point 10 20)) pi              0.1 "flip")
   (check-within (turn-angle 20+20i 10+0i (point:make-point 30 30)) (/ pi 4)        0.1 "right turn")
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 10)) (/ pi 4)        0.1 "right turn")
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 00)) 0.0             0.1 "no turn"))
 
-(module+ test
-  (check-false (state-mouse-click-ok? state0 10 10))
-  (check-true (number? (state-mouse-click-ok? state0 50 100))))
+(module+ test ;; state-mouse-click-ok?
+  (check-false (state-mouse-click-turn? state0 10 10))
+  (check-true (number? (state-mouse-click-turn? state0 50 100))))
 
-(module+ test
-
+(module+ test ;; fighter-first 
   (define state8 (state (list fighter0 fighter1) '()))
   (define state8++ (state (list fighter1 fighter0) '()))
-
-  (check-equal? (swap-two-players state0) state0)
-  (check-equal? (swap-two-players state8) state8++)
-
+  
   (check-equal? (fighter-first state8 fighter0) state8)
   (check-equal? (fighter-first state8 fighter1) state8++)
-  
+  (check-equal? (fighter-first state0 fighter0) state0))
 
-  (check-equal? (fighter-first state0 fighter0) state0)
+(module+ test ;; preparing the state for the next turn (2 fighters, arbitrary fighters)
+  (check-equal? (swap-two-players state0) state0)
+  (check-equal? (swap-two-players state8) state8++)
   (check-equal? (next-turn state0) state0))
 
-(module+ test
+(module+ test ;; remove-fighter
   (check-equal? (remove-fighter state0 0) state0--))
 
 ;; ---------------------------------------------------------------------------------------------------
-;; for running an AI strategy 
+;; for running an AI strategy
 
 #; {State -> State}
 (define (fighter-action-strategy-1 state0)
@@ -333,5 +328,20 @@
   (define action (strategy-1 mine pill*))
   (execute state0 action))
 
-(module+ test
+(module+ test ;; local exampes for `execute` and running an action-producing strategy
+  (define state1 (state (list fighter1) pill*0))
+  (define state1-red  (state (list (eat-fighter fighter1 (pill-score red0))) (list))))
+
+(module+ test ;; execute a request 
+  (check-equal? (execute state1 (eat red0)) state1-red)
+
+  (define state4 (state (list fighter4) pill*0))
+  (define state4-mov (state (list (move-fighter fighter4)) pill*0))
+  (check-equal? (execute state4 (mov 'me)) state4-mov)
+
+  (define state5 (state (list fighter5) pill*0))
+  (define state5-max (state (list (rotate-fighter fighter5 MAX-RAD)) pill*0))
+  (check-equal? (execute state5 (rot MAX-RAD)) state5-max))
+
+(module+ test ;; run a AI fighter's strategy to produce an action 
   (check-equal? (fighter-action-strategy-1 state1) state1-red))

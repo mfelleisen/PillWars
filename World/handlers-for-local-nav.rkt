@@ -9,7 +9,7 @@
  navigate-by-key
 
  #; {State N N MouseEvent -> State}
- turn-by-mouse
+ act-on-button-down
 
  #; {State -> Boolean}
  game-over?)
@@ -49,7 +49,7 @@
 ;; -- button-down in the yellow space of a fighter changes its direction
 ;; -- button-down in any white space moves "my" fighter straight ahead
 ;; -- button-down on an "enemy" "fires" IF the fighter is "on" the enemy 
-(define (turn-by-mouse s x y me)
+(define (act-on-button-down s x y me)
   (cond
     [(mouse=? "button-down" me) (turn-by-click s x y)]
     [else s]))
@@ -58,8 +58,8 @@
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
 (define (turn-by-click s x y)
   (cond
-    [(state-mouse-click-ok? s x y) => (λ (θ) (rotate-my-fighter s (- θ)))]
-    [(mouse-click-on-pill? s x y) => (λ (pill) (eat-my-fighter s pill))]
+    [(state-mouse-click-turn? s x y) => (λ (θ) (rotate-my-fighter s (- θ)))]
+    [(mouse-click-on-pill? s x y)    => (λ (pill) (eat-my-fighter s pill))]
     [else (move-my-fighter s)]))
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -76,14 +76,14 @@
   (check-equal? (navigate-by-key state0 " ") (eat-my-fighter state0))
   (check-equal? (navigate-by-key state0 "a") state0)
 
-  (check-equal? (turn-by-mouse state0 10 50 "button-up") state0)
-  (check-equal? (turn-by-mouse state0 10 50 "button-down")
-                (rotate-my-fighter state0 (- (state-mouse-click-ok? state0 10 50))))
+  (check-equal? (act-on-button-down state0 10 50 "button-up") state0)
+  (check-equal? (act-on-button-down state0 10 50 "button-down")
+                (rotate-my-fighter state0 (- (state-mouse-click-turn? state0 10 50))))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
-  (check-equal? (turn-by-mouse state0 p.x p.y "button-down") (eat-my-fighter state0 a-pill))
+  (check-equal? (act-on-button-down state0 p.x p.y "button-down") (eat-my-fighter state0 a-pill))
 
-  (check-equal? (turn-by-mouse state0 (+ RS p.x 1) p.y "button-down") (move-my-fighter state0))
+  (check-equal? (act-on-button-down state0 (+ RS p.x 1) p.y "button-down") (move-my-fighter state0))
 
   (check-false (game-over? state0) "state0 is an okay starting state"))

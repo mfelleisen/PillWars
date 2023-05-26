@@ -53,15 +53,15 @@
 ;; -- button-down on an "enemy" "fires" IF the fighter is "on" the enemy 
 (define (turn-by-mouse s x y me)
   (cond
-    [(mouse=? "button-down" me) (turn-by-click s x y)]
+    [(mouse=? "button-down" me) (act-on-button-down s x y)]
     [else #false]))
 
 #; {State N N -> State}
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
-(define (turn-by-click s x y)
+(define (act-on-button-down s x y)
   (cond
-    [(state-mouse-click-ok? s x y) => (λ (θ) (rot (- θ)))]
-    [(mouse-click-on-pill? s x y) => (λ (pill) (eat pill))]
+    [(state-mouse-click-turn? s x y) => (λ (θ) (rot (- θ)))]
+    [(mouse-click-on-pill? s x y)    => (λ (pill) (eat pill))]
     [else (mov 'dummy)]))
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@
 
   (check-equal? (turn-by-mouse state0 10 50 "button-up") state0)
   (check-equal? (turn-by-mouse state0 10 50 "button-down")
-                (rotate-my-fighter state0 (- (state-mouse-click-ok? state0 10 50))))
+                (rotate-my-fighter state0 (- (state-mouse-click-turn? state0 10 50))))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
