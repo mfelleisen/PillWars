@@ -4,6 +4,7 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/action)
+(require PillWars/Common/fighter)
 (require PillWars/AI/strategy-1)
 (require PillWars/Common/state)
 (require PillWars/Universe/handlers-for-universe)
@@ -12,9 +13,7 @@
 (require 2htdp/universe)
 
 (define (main my-name)
-  (define [umain] (universe-main 1))
-  (define [lmain] (local-main my-name))
-  (launch-many-worlds [umain] [lmain] #;(ai-main)))
+  (launch-many-worlds (universe-main 2) (local-main my-name) (ai-main 0)))
 
 ;; ---------------------------------------------------------------------------------------------------
 #; {N -> USTate}
@@ -26,14 +25,13 @@
     [on-disconnect remove-player]))
 
 ;; ---------------------------------------------------------------------------------------------------
-(define [ai-main (server-ip LOCALHOST)]
-  (define start-with (add-fighter-to-front "AI" (empty-state)))
-  (define my-name "Darth Vadder")
+(define [ai-main i (server-ip LOCALHOST)]
+  (define my-name (~a "Darth Vadder-" i))
+  (define start-with (dummy-state my-name))
   (big-bang start-with
     [to-draw    (draw-state BG)]
-    [register   server-ip]
-    [state #true]
     [on-receive ai-receive]
+    [register   server-ip]
     [name       my-name]
     [stop-when  game-over? (draw-state-with-winners BG)]))
 
@@ -50,7 +48,7 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; a turn-based game betweeen a human player and an AI 
 (define (local-main my-name (server-ip LOCALHOST)) 
-  (define start-with (create-plus (add-pill-at-fighter (add-fighter-to-front my-name (empty-state)))))
+  (define start-with (create-plus my-name))
   (define end-with
     (big-bang start-with
       [to-draw    (strip (draw-state BG))]
@@ -59,7 +57,6 @@
       [on-key     (enable navigate-by-key)]
       [on-receive human-receive]
       [name       my-name]
-      [state #true]
       [stop-when  (strip game-over?) (strip (draw-state-with-winners BG))]))
   (plus-winners end-with))
 
@@ -71,10 +68,10 @@
 ;; INVARIANT if `my-turn?` holds, then the first player in `state` is me 
 #; {type [Handler X] = (State Any ... -> X)}
 
-#; {State -> Plus}
+#; {String -> Plus}
 ;; add an AI player and set it up to go first 
-(define (create-plus state)
-  (plus #false state))
+(define (create-plus my-name)
+  (plus #false (dummy-state my-name)))
 
 #; {Plus S-expression -> Plus}
 (define (human-receive _ msg)
@@ -99,6 +96,11 @@
 #; {plus -> [Listof String]}
 (define (plus-winners i)
   (winners (plus-state i)))
+
+;; ---------------------------------------------------------------------------------------------------
+#; {String -> State}
+(define (dummy-state my-name)
+  (add-pill-at-fighter (add-fighter-to-front my-name (empty-state))))
   
 ;; ---------------------------------------------------------------------------------------------------
 (module+ test

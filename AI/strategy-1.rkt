@@ -53,6 +53,7 @@
 
 (define (strategy-1 mine pill*)
   (cond
+    [(empty? pill*)                   (gup "no pills")]
     [(on-any-pill mine pill*)         => eat]
     [(can-reach mine pill*)           => mov]
     [(rotate->reach mine pill* LEFT)  => rot]
@@ -63,7 +64,10 @@
     ;; If no reachable pill can be found, `(gup "no more pills reachable from here")`
     ;; Otherwise, try random or try moving in this direction? 
 
-    [else                       (rot (random-degree))]))
+    [else
+     (if (or (rotate->reach mine pill* #;end pi) (rotate->reach mine pill* #;end (- pi)))
+         (rot MAX-RAD)
+         (gup "no pill reachable"))]))
 
 (define (random-degree)
   (let* ([s MAX-RAD]
@@ -136,4 +140,4 @@
 
   (define fighter0+ (for/fold ([s fighter0]) ([i 60]) (rotate-fighter s (/ pi 60))))
   (check-true (rot? (strategy-1 fighter0+ pill*1)) "right turn")
-  (check-true (rot? (strategy-1 fighter-stuck pills-stuck)) "random rotating at the moment"))
+  (check-true (gup? (strategy-1 fighter-stuck '())) "random rotating at the moment"))
