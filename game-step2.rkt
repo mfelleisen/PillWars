@@ -40,6 +40,7 @@
     [on-receive ai-receive]
     [register   server-ip]
     [name       my-name]
+    [close-on-stop 30]
     [stop-when  game-over? (draw-state-with-winners BG)]))
 
 
@@ -75,6 +76,7 @@
       [on-key     (enable navigate-by-key)]
       [on-receive human-receive]
       [name       my-name]
+      [close-on-stop 30]
       [stop-when  (strip game-over?) (strip (draw-state-with-winners BG))]))
   (plus-winners end-with))
 
