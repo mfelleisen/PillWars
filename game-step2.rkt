@@ -19,7 +19,8 @@
   (launch-many-worlds (universe-main 2) (local-main my-name) (ai-main 0)))
 
 (define (main-clients my-name)
-  (launch-many-worlds (local-main my-name) (ai-main 0)))
+  (define server "antarctica.ccs.neu.edu")
+  (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
 
 ;; ---------------------------------------------------------------------------------------------------
 #; {N -> USTate}
