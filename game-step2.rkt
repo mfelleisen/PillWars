@@ -5,15 +5,21 @@
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/action)
 (require PillWars/Common/fighter)
+(require PillWars/Common/pills)
 (require PillWars/AI/strategy-1)
 (require PillWars/Common/state)
 (require PillWars/Universe/handlers-for-universe)
 (require PillWars/World/handlers-for-distributed-nav)
 (require PillWars/World/constants)
+(require PillWars/Lib/image)
 (require 2htdp/universe)
 
-(define (main my-name)
+;; ---------------------------------------------------------------------------------------------------
+(define (main-run-locally my-name)
   (launch-many-worlds (universe-main 2) (local-main my-name) (ai-main 0)))
+
+(define (main-clients my-name)
+  (launch-many-worlds (local-main my-name) (ai-main 0)))
 
 ;; ---------------------------------------------------------------------------------------------------
 #; {N -> USTate}
@@ -29,12 +35,23 @@
   (define my-name (~a "Darth Vadder-" i))
   (define start-with (dummy-state my-name))
   (big-bang start-with
-    [to-draw    (draw-state BG)]
+    [to-draw    ai-draw #;(draw-state BG)]
     [on-receive ai-receive]
     [register   server-ip]
     [name       my-name]
     [stop-when  game-over? (draw-state-with-winners BG)]))
 
+
+#; {State -> Scene }
+;; don't redraw the pills if they haven't changed 
+(define pills- '())
+(define scene0 BG)
+(define (ai-draw state0)
+  (define pills0 (state-pills state0))
+  (unless (equal? pills- pills0)
+    (set! scene0 [add-objects BG pills0 add-pill]))
+  (add-objects scene0 (state-fighters state0) add-fighter))
+  
 #; {State State -> [Package State Action]}
 (define (ai-receive _ msg)
   (cond
@@ -104,4 +121,10 @@
   
 ;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (main "Benjamin"))
+  (main-run-locally "Benjamin"))
+
+(module+ server 
+  (universe-main 2))
+
+(module+ client
+  (main-clients "Benhamin"))
