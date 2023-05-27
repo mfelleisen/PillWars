@@ -49,6 +49,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 
 (module+ test
   (require (submod PillWars/Common/state examples))
+  (require 2htdp/image)
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -137,12 +138,18 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 
 (module+ test ;; add-player 
   (define +player-2 (add-player 2))
-  (define state1  (add-fighter-to-front "ok" state0))
+  (define state1  (add-fighter-to-front "Benjamin" state0))
   (define ustate1 (list iworld1 (ustate (list iworld1 iworld3) state1)))
   
   (check-true (ustate? (+player-2 (ustate '() (plain-state)) iworld3)) "add first player")
   (check-true (bundle? (+player-2 (ustate (list iworld3) state0) iworld1)) "reach limit")
   (check-equal? (+player-2 ustate1 iworld3) ustate1 "drop new player when game is running"))
+
+(module+ test ;; for demo file 
+  (define dv (create-fighter "Darth Vadder" 'tie))
+  (define bf (create-fighter  "Benjamin" 'xwing))
+  [(draw-state (empty-scene 1200 800))
+   (add-fighter-to-front dv (add-fighter-to-front bf (plain-state)))])
 
 (module+ test ;; remove-player 
   (define ustate1-- (list iworld1 (ustate (list iworld1) (remove-fighter state1 1))))

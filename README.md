@@ -7,6 +7,8 @@ Every player has one fighter and scrambles to collect as many points by
 Destroying a red enemy accelerates the fighter by a hidden percentage.
 Destroying a blue enemy merely means collecting points. 
 
+![demo img](Resources/demo.png)
+
 ### Installation
 
 In a terminal: 
