@@ -23,6 +23,10 @@
   (define server "antarctica.ccs.neu.edu")
   (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
 
+(define (main-clients-local my-name)
+  (define server LOCALHOST)
+  (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
+
 ;; ---------------------------------------------------------------------------------------------------
 #; {N -> USTate}
 ;; run a game for `n` players 
@@ -121,3 +125,6 @@
 
 (module+ client
   (main-clients "Benjamin"))
+
+(module+ local
+  (main-clients-local "Benjamin"))
