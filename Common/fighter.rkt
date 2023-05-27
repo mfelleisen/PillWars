@@ -67,8 +67,8 @@
 ;; ---------------------------------------------------------------------------------------------------
 (struct fighter [posn velocity score name base] #:prefab)
 
-(define (create-fighter name)
-  (fighter (create-random-point) (create-random-direction) 0 name 'default-image))
+(define (create-fighter name [base 'default-image])
+  (fighter (create-random-point) (create-random-direction) 0 name base))
 
 ;; ---------------------------------------------------------------------------------------------------
 

@@ -105,10 +105,18 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
   (match us
     [(list w x) us]
     [[ustate worlds state]
-     (define new-fighter (create-fighter (iworld-name iw)))
+     (define player-name (iworld-name iw))
+     (define new-fighter (create-fighter player-name (name->image player-name)))
      (define new-state   (add-fighter-to-front new-fighter state))
      (define new-ustate  [ustate (cons iw worlds) new-state])
      (if (= (length (state-fighters new-state)) n) (start-turn new-ustate) new-ustate)]))
+
+#; {String -> Symbol}
+(define (name->image s)
+  (cond
+    [(regexp-match #px"Darth" s) 'tie]
+    [(regexp-match #px"Benja" s) 'xwing]
+    [else 'default]))
 
 ;; ---------------------------------------------------------------------------------------------------
 #; {UState -> Bundle}
