@@ -35,4 +35,11 @@
   (- (angle α) (angle θ)))
 
 (define (create-random-direction)
-  (make-rectangular (/ (+ 1 (random 10)) 10) (/ (+ 1 (random 10)) 10)))
+  (make-rectangular (random-fraction) (random-fraction)))
+
+(define (random-fraction)
+  (+ #i1.0 (random 10)))
+
+;; -----------------------------------------------------------------------------
+(module+ test
+  (build-list 100 (λ _ (create-random-direction))))
