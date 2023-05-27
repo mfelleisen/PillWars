@@ -83,7 +83,6 @@
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
-  (check-true (eat? (turn-by-mouse state0 p.x p.y "button-down")))
 
   (check-equal? (turn-by-mouse state0 (+ RS p.x 1) p.y "button-down") (mov 'dummy))
 

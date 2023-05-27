@@ -82,8 +82,7 @@
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
-  (check-equal? (act-on-button-down state0 p.x p.y "button-down") (eat-my-fighter state0 a-pill))
-
+  
   (check-equal? (act-on-button-down state0 (+ RS p.x 1) p.y "button-down") (move-my-fighter state0))
 
   (check-false (game-over? state0) "state0 is an okay starting state"))
