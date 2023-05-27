@@ -7,6 +7,40 @@ Every player has one fighter and scrambles to collect as many points by
 Destroying a red enemy accelerates the fighter by a hidden percentage.
 Destroying a blue enemy merely means collecting points. 
 
+### Installation
+
+In a terminal: 
+
+```
+$ git clone git@github.com:mfelleisen/PillWars.git
+$ cd PillWars
+$ raco pkg install
+```
+
+### Playing: Two Players
+
+Open a terminal, navigate to `PillWars`:
+
+```
+$ raco test -s server game-step2.rkt &
+$ raco test -s local game-step2.rkt
+```
+This spawns a window for the human player and also runs a game AI,
+which isn't all that intelligent but still not easy to beat. 
+
+When the game is over the windows stay up for 30s. Then just re-run
+the previous command:  
+
+```
+$ !!
+```
+
+or
+
+```
+$ raco test -s local game-step2.rkt
+```
+
 ### The Basic Rules 
 
 During a turn, a player may perform one of the following actions:
