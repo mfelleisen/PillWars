@@ -13,6 +13,7 @@
 (require PillWars/World/constants)
 (require PillWars/Lib/image)
 (require 2htdp/universe)
+(require 2htdp/image)
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (main-run-locally my-name)
@@ -36,24 +37,13 @@
   (define my-name (~a "Darth Vadder-" i))
   (define start-with (dummy-state my-name))
   (big-bang start-with
-    [to-draw    ai-draw #;(draw-state BG)]
+    [to-draw    (draw-state (empty-scene 200 100))]
     [on-receive ai-receive]
     [register   server-ip]
     [name       my-name]
     [close-on-stop 30]
     [stop-when  game-over? (draw-state-with-winners BG)]))
 
-
-#; {State -> Scene }
-;; don't redraw the pills if they haven't changed 
-(define pills- '())
-(define scene0 BG)
-(define (ai-draw state0)
-  (define pills0 (state-pills state0))
-  (unless (equal? pills- pills0)
-    (set! scene0 [add-objects BG pills0 add-pill]))
-  (add-objects scene0 (state-fighters state0) add-fighter))
-  
 #; {State State -> [Package State Action]}
 (define (ai-receive _ msg)
   (cond
@@ -130,4 +120,4 @@
   (universe-main 2))
 
 (module+ client
-  (main-clients "Benhamin"))
+  (main-clients "Benjamin"))
