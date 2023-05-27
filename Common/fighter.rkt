@@ -88,9 +88,15 @@
   (match-define [fighter posn vel score name] this)
   (define-values (p.x p.y) (->values posn))
   (define-values [v.x v.y] (->values (+ posn (* (/ FWING .5 (magnitude vel)) vel))))
+  (define-values [s.x s.y] (->values vel))
   (let* ([s scene0]
          [r (rad->deg (angle (conjugate vel)))]
-         [g (overlay/offset (text (~a name " : " score) 12 'black) -60 0 fighter-image)]
+         [n (text name 12 'black)]
+         [y (text (~a "dy: " (~r s.y #:precision 2)) 12 'black)]
+         [x (text (~a "sx: " (~r s.x #:precision 2)) 12 'black)]
+         [c (text (~a "score : " score) 12 'black)]
+         [b (rectangle 1 1 'solid 'white)]
+         [g (overlay/offset (above/align 'left n b c b x b y) -60 0 fighter-image)]
          [f (rotate r g)]
          [s (place-image f p.x p.y s)])
     s))
