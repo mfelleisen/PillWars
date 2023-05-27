@@ -60,7 +60,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 ;; ---------------------------------------------------------------------------------------------------
 (define (remove-player us0 iw)
   (match us0
-    [(ustate worlds state) (remove-player-aux us0 iw)]
+    [(? ustate?) (remove-player-aux us0 iw)]
     [(list (? iworld? iw-with-turn) (? ustate? us-plain))
      (cond
        [(not (equal? iw-with-turn iw))
@@ -75,7 +75,8 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 (define (remove-player-aux us0 iw)
   (match-define [ustate worlds s0] us0)
   (define i (index-of worlds iw))
-  (ustate (remove iw worlds) (remove-fighter s0 i)))
+  ;; the world may have already been removed 
+  (if (boolean? i) us0 (ustate (remove iw worlds) (remove-fighter s0 i))))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (end-turn us0 iw msg)
