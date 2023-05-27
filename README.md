@@ -88,3 +88,15 @@ Here is simplistic opponent-agnostic one:
   - 4. still not? change direction clockwise by STEP-RAD until a pill is - reachable. _Rotate_. (TODO)
   - 5. else: return default action. 
 
+
+### Known Issues
+
+1. A human player can lose points using just the keyboard by trying to
+   destroy an enemy (with the space bar) when his fighter isn't on the
+   red or blue planet. --- This cannot happen when the player
+   accidentally uses the mouse and just clicks on a planet.
+
+2. On occasion, turning the player via mouse clicks doesn't work.
+   It is not clear when that happens. Using the keys and then the
+   mouse seems to fix it. 
+
