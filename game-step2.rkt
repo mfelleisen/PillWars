@@ -4,16 +4,12 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/action)
-(require PillWars/Common/fighter)
-(require PillWars/Common/pills)
-(require PillWars/AI/strategy-1)
 (require PillWars/Common/state)
-(require PillWars/Universe/handlers-for-universe)
+(require PillWars/AI/strategy-1)
 (require PillWars/World/handlers-for-distributed-nav)
 (require PillWars/World/constants)
-(require PillWars/Lib/image)
+(require PillWars/Universe/handlers-for-universe)
 (require 2htdp/universe)
-(require 2htdp/image)
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (main-run-locally my-name)
@@ -41,7 +37,7 @@
   (define my-name (~a "Darth Vadder-" i))
   (define start-with (dummy-state my-name))
   (big-bang start-with
-    [to-draw    (draw-state (empty-scene 200 100))]
+    [to-draw    (draw-state AI-BG)]
     [on-receive ai-receive]
     [register   server-ip]
     [name       my-name]
@@ -64,7 +60,7 @@
   (define start-with (create-plus my-name))
   (define end-with
     (big-bang start-with
-      [to-draw    (strip (draw-state BG))]
+      [to-draw    (strip (draw-explosions BG))]
       [register   server-ip]
       [on-mouse   (enable turn-by-mouse)]
       [on-key     (enable navigate-by-key)]
@@ -73,6 +69,55 @@
       [close-on-stop 30]
       [stop-when  (strip game-over?) (strip (draw-state-with-winners BG))]))
   (plus-winners end-with))
+
+;; ---------------------------------------------------------------------------------------------------
+;; "override" `draw-state` with a function that shows explosions when a fighter 'eats' a pill 
+
+(module explosions racket
+  (provide draw-explosions)
+
+  (require PillWars/Common/pills)
+  (require PillWars/AI/strategy-1)
+  (require PillWars/Common/state)
+  (require PillWars/World/constants)
+  (require PillWars/Lib/image)
+  (require PillWars/Common/point)
+  (require PillWars/Common/geometry)
+  (require 2htdp/image)
+
+  (module+ test
+    (require rackunit)
+    (require (submod PillWars/AI/strategy-1 examples)))
+
+  #; {Scene -> State -> Scene}
+  (define (draw-explosions BG)
+    (define pills-1 '())
+    (define (draw-explosions-then-state state0)
+      (define pills-0 (state-pills state0))
+      (define scene0  (add-explosions BG (explosion-posns pills-1 pills-0)))
+      (set! pills-1 pills-0)
+      [(draw-state scene0) state0])
+    draw-explosions-then-state)
+
+  #; {[Listof Pill] [Listof Pill] -> [Listof Point]}
+  (define (explosion-posns pills-1 pills-0)
+    (cond
+      [(boolean? pills-1) '()]
+      [else
+       (define set-pills-1 (apply set pills-1))
+       (define set-pills-0 (apply set pills-0))
+       (define delta (set-subtract set-pills-1 set-pills-0))
+       (set-map delta pill-posn)]))
+      
+  #; {Scene [Listof Point] -> Scene}
+  (define (add-explosions BG posns)
+    (add-objects BG posns (λ (p s) (let-values ([(x y) (->values p)]) (place-image EXPL x y s)))))
+  
+  (module+ test
+    (check-true (cons? (set-map (set-subtract (apply set pill*1) (apply set pill*0)) pill-posn)))
+    (check-true (image? (add-explosions BG (explosion-posns pill*1 pill*0))))
+    (check-true (image? (add-explosions BG [list 10+33i 100+200i])))))
+(require 'explosions)
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; a universe a two-player game, with one of them an AI, by en-/dis-abling handlers for a solo player
