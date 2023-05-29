@@ -101,13 +101,10 @@
 
   #; {[Listof Pill] [Listof Pill] -> [Listof Point]}
   (define (explosion-posns pills-1 pills-0)
-    (cond
-      [(boolean? pills-1) '()]
-      [else
-       (define set-pills-1 (apply set pills-1))
-       (define set-pills-0 (apply set pills-0))
-       (define delta (set-subtract set-pills-1 set-pills-0))
-       (set-map delta pill-posn)]))
+    (define set-pills-1 (apply set pills-1))
+    (define set-pills-0 (apply set pills-0))
+    (define delta (set-subtract set-pills-1 set-pills-0))
+    (set-map delta pill-posn))
       
   #; {Scene [Listof Point] -> Scene}
   (define (add-explosions BG posns)
@@ -116,8 +113,26 @@
   (module+ test
     (check-true (cons? (set-map (set-subtract (apply set pill*1) (apply set pill*0)) pill-posn)))
     (check-true (image? (add-explosions BG (explosion-posns pill*1 pill*0))))
-    (check-true (image? (add-explosions BG [list 10+33i 100+200i])))))
+    (check-true (image? (add-explosions BG [list 10+33i 100+200i]))))
+
+  (module+ test ;; for demo file
+    (require PillWars/Common/fighter)
+    (define dv (create-fighter "Darth Vadder" 'tie))
+    (define bf (create-fighter  "Benjamin" 'xwing))
+    (define s* (plain-state))
+    (define s0 (add-fighter-to-front dv (add-fighter-to-front bf s*)))
+    (define p* (first (state-pills s*)))
+    (define s1 (eat-my-fighter s0 p*))
+
+    (define shared-draw (draw-explosions BG))
+    (void [shared-draw s0])
+    (define demo.png (scale .5 [shared-draw s1]))
+    (save-image demo.png "Resources/demo.png")))
+
 (require 'explosions)
+;; for demo
+#;
+(require (submod "." explosions test))
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; a universe a two-player game, with one of them an AI, by en-/dis-abling handlers for a solo player
@@ -162,9 +177,6 @@
   (add-pill-at-fighter (add-fighter-to-front my-name (empty-state))))
   
 ;; ---------------------------------------------------------------------------------------------------
-(module+ test
-  (main-run-locally "Benjamin"))
-
 (module+ server 
   (universe-main 2))
 
