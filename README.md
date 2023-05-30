@@ -51,12 +51,12 @@ During a turn, a player may perform one of the following actions:
 - move forward one step according to its current velocity; or
 - rotate clockwise or counter-clockwise by some degrees. 
 
-If a fighter attempts to destroy an enemy but its focus point isn't on it, the
+If a fighter attempts to destroy a red or blue enemy but its focus point isn't on it, the 
 owner loses a point. A player's score cannot go below 0. 
 
 A player is eliminated if the fighter navigates outside the game space.
 
-The game ends when all enemies are destroyed or all fighters are eliminated.
+The game ends when all red and blue enemies are destroyed or all fighters are eliminated.
 
 The player with the most points wins.
 
@@ -64,7 +64,7 @@ The player with the most points wins.
 
 A _human player_ can navigate his fighter with either mouse clicks
 
-- button-down in the yellow space of a fighter changes its direction
+- button-down in the transparent gray space of a fighter changes its direction
 - button-down in any white space moves "my" fighter straight ahead
 - button-down on an "enemy" "fires" IF the fighter is "on" the enemy 
 
