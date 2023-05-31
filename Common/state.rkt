@@ -45,7 +45,7 @@
  draw-state-with-winners 
 
  #; {State N N -> (U Pill #false)}
- state-mouse-click-turn?
+ mouse-click-to-turn?
 
  #; {State N N -> (U Radian #false)}
  mouse-click-on-pill?
@@ -191,7 +191,7 @@
   (if (not is-pill) #false (and (on-pill? is-pill fi-posn) is-pill)))
 
   
-(define (state-mouse-click-turn? state x y)
+(define (mouse-click-to-turn? state x y)
   (define f (state-my-fighter state))
   (define p (fighter-posn f))
   (define q (point:make-point x y))
@@ -300,9 +300,9 @@
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 10)) (/ pi 4)        0.1 "right turn")
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 00)) 0.0             0.1 "no turn"))
 
-(module+ test ;; state-mouse-click-ok?
-  (check-false (state-mouse-click-turn? state0 10 10))
-  (check-true (number? (state-mouse-click-turn? state0 50 100))))
+(module+ test ;; mouse-click-to-turn?
+  (check-false (mouse-click-to-turn? state0 10 10))
+  (check-true (number? (mouse-click-to-turn? state0 50 100))))
 
 (module+ test ;; fighter-first 
   (define state8 (state (list fighter0 fighter1) '()))

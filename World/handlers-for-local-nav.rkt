@@ -58,8 +58,8 @@
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
 (define (act s x y)
   (cond
-    [(state-mouse-click-turn? s x y) => (λ (θ) (rotate-my-fighter s (- θ)))]
-    [(mouse-click-on-pill? s x y)    => (λ (pill) (eat-my-fighter s pill))]
+    [(mouse-click-to-turn? s x y) => (λ (θ) (rotate-my-fighter s (- θ)))]
+    [(mouse-click-on-pill? s x y) => (λ (pill) (eat-my-fighter s pill))]
     [else (move-my-fighter s)]))
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@
 
   (check-equal? (act-on-button-down state0 10 50 "button-up") state0)
   (check-equal? (act-on-button-down state0 10 50 "button-down")
-                (rotate-my-fighter state0 (- (state-mouse-click-turn? state0 10 50))))
+                (rotate-my-fighter state0 (- (mouse-click-to-turn? state0 10 50))))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))

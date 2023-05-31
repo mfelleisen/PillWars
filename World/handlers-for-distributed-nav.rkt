@@ -60,8 +60,8 @@
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
 (define (act-on-button-down s x y)
   (cond
-    [(state-mouse-click-turn? s x y) => (λ (θ) (rot (- θ)))]
-    [(mouse-click-on-pill? s x y)    => (λ (pill) (eat pill))]
+    [(mouse-click-to-turn? s x y) => (λ (θ) (rot (- θ)))]
+    [(mouse-click-on-pill? s x y) => (λ (p) (eat p))]
     [else (mov 'dummy)]))
 
 ;; ---------------------------------------------------------------------------------------------------
