@@ -98,7 +98,5 @@ Here is simplistic opponent-agnostic one:
    red or blue planet. --- This cannot happen when the player
    accidentally uses the mouse and just clicks on a planet.
 
-2. On occasion, turning the player via mouse clicks doesn't work.
-   It is not clear when that happens. Using the keys and then the
-   mouse seems to fix it. 
+2. 
 

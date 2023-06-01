@@ -28,8 +28,8 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(define LEFT  (/ pi +60))
-(define RIGHT (/ pi -60))
+(define LEFT  (/ pi -60))
+(define RIGHT (/ pi +60))
 
 #; {State KeyEvent -> (U Action #false)}
 ;; allow player to navigate the game space via keystrokes:
@@ -60,7 +60,7 @@
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
 (define (act-on-button-down s x y)
   (cond
-    [(mouse-click-to-turn? s x y) => (λ (θ) (rot (- θ)))]
+    [(mouse-click-to-turn? s x y) => (λ (θ) (rot θ))]
     [(mouse-click-on-pill? s x y) => (λ (p) (eat p))]
     [else (mov 'dummy)]))
 

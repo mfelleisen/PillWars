@@ -190,7 +190,6 @@
   (define is-pill (find-pill mc-posn (state-pills state0)))
   (if (not is-pill) #false (and (on-pill? is-pill fi-posn) is-pill)))
 
-  
 (define (mouse-click-to-turn? state x y)
   (define f (state-my-fighter state))
   (define p (fighter-posn f))
@@ -199,9 +198,9 @@
   (and (<= (point:distance p q) RADAR) (<= (abs θ) MAX-RAD) θ))
 
 #; {Point Direction Point -> Radian}
-(define (turn-angle this-point this-dir other)
-  (define direction-from-p-to-q (point:point->direction this-point other))
-  (delta-angle direction-from-p-to-q this-dir))
+(define (turn-angle fighter-at fighter-dir mouse-at)
+  (define direction-from-this-to-other (point:point->direction fighter-at mouse-at))
+  (delta-angle direction-from-this-to-other fighter-dir))
 
 ;; ---------------------------------------------------------------------------------------------------
 (define (rotate-my-fighter state0 rad)
@@ -300,8 +299,7 @@
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 10)) (/ pi 4)        0.1 "right turn")
   (check-within (turn-angle 0+0i 10+0i   (point:make-point 10 00)) 0.0             0.1 "no turn"))
 
-(module+ test ;; mouse-click-to-turn?
-  (check-false (mouse-click-to-turn? state0 10 10))
+(module+ test ;; state-mouse-click-ok?
   (check-true (number? (mouse-click-to-turn? state0 50 100))))
 
 (module+ test ;; fighter-first 
@@ -347,3 +345,49 @@
 
 (module+ test ;; run a AI fighter's strategy to produce an action 
   (check-equal? (fighter-action-strategy-1 state1) state1-red))
+
+(module+ test ;; bug reconstruction
+  
+  (define mouse-at 620+544i)
+  (define m.x 620)
+  (define m.y 544)
+  (define s0
+    '#s(state
+        (#s(fighter
+            801.253269456771+535.1370438852057i
+            -8.705176594493532-5.416631837099699i
+            56
+            "Benjamin"
+            xwing)
+         #s(fighter
+            945.5428062256452+239.01281785626986i
+            -9.013233963606234-24.780863857365727i
+            11
+            "Darth Vadder-0"
+            tie))
+        (#s((red pill 2) 748+727i 4 3/10)
+         #s((red pill 2) 853+6i 3 1/10)
+         #s((red pill 2) 553+81i 2 2/5)
+         #s((red pill 2) 689+307i 1 3/10)
+         #s((red pill 2) 732+637i 3 1/5)
+         #s((red pill 2) 567+173i 2 3/10)
+         #s((red pill 2) 426+460i 5 1/10)
+         #s((red pill 2) 720+781i 1 3/10)
+         #s((red pill 2) 1015+653i 5 1/10)
+         #s((red pill 2) 281+466i 1 1/5)
+         #s((red pill 2) 155+183i 1 1/2)
+         #s((red pill 2) 58+342i 2 2/5)
+         #s((red pill 2) 401+510i 5 3/10)
+         #s((red pill 2) 217+51i 5 1/5)
+         #s((red pill 2) 490+538i 1 1/10)
+         #s((red pill 2) 675+250i 5 1/5)
+         #s((red pill 2) 143+323i 1 1/2)
+         #s((blue pill 2) 100+246i 11)
+         #s((blue pill 2) 205+14i 5)
+         #s((blue pill 2) 60+609i 5)
+         #s((blue pill 2) 66+385i 10))))
+  (check-true (number? (mouse-click-to-turn? s0 m.x m.y)))
+
+  (define fighter-at 801.253269456771+535.1370438852057i)
+  (define f.vel -8.705176594493532-5.416631837099699i)
+  (check-true (<= (abs (delta-angle (point:point->direction fighter-at mouse-at) f.vel)) MAX-RAD)))
