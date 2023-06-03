@@ -188,7 +188,7 @@
   (define fi-posn (fighter-posn (state-my-fighter state0)))
   (define mc-posn (point:make-point x y))
   (define is-pill (find-pill mc-posn (state-pills state0)))
-  (if (not is-pill) #false (and (on-pill? is-pill fi-posn) is-pill)))
+  (if (not is-pill) #false fi-posn))
 
 (define (mouse-click-to-turn? state x y)
   (define f (state-my-fighter state))

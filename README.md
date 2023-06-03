@@ -93,10 +93,5 @@ Here is simplistic opponent-agnostic one:
 
 ### Known Issues
 
-1. A human player can lose points using just the keyboard by trying to
-   destroy an enemy (with the space bar) when his fighter isn't on the
-   red or blue planet. --- This cannot happen when the player
-   accidentally uses the mouse and just clicks on a planet.
 
-2. 
 
