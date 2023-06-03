@@ -9,7 +9,7 @@
  navigate-by-key
 
  #; {State N N MouseEvent -> State}
- turn-by-mouse
+ act-on-button-down
 
  #; {State -> Boolean}
  game-over?)
@@ -51,14 +51,14 @@
 ;; -- button-down in the yellow space of a fighter changes its direction
 ;; -- button-down in any white space moves "my" fighter straight ahead
 ;; -- button-down on an "enemy" "fires" IF the fighter is "on" the enemy 
-(define (turn-by-mouse s x y me)
+(define (act-on-button-down s x y me)
   (cond
-    [(mouse=? "button-down" me) (act-on-button-down s x y)]
+    [(mouse=? "button-down" me) (act s x y)]
     [else #false]))
 
 #; {State N N -> State}
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
-(define (act-on-button-down s x y)
+(define (act s x y)
   (cond
     [(mouse-click-to-turn? s x y) => (λ (θ) (rot θ))]
     [(mouse-click-on-pill? s x y) => (λ (p) (eat p))]
@@ -78,12 +78,12 @@
   (check-equal? (navigate-by-key state0 " ") (eat (fighter-posn (first (state-fighters state0)))))
   (check-false (navigate-by-key state0 "a"))
 
-  (check-false (turn-by-mouse state0 10 50 "button-up"))
-  (check-true (rot? (turn-by-mouse state0 10 50 "button-down")))
+  (check-false (act-on-button-down state0 10 50 "button-up"))
+  (check-true (rot? (act-on-button-down state0 10 50 "button-down")))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
 
-  (check-equal? (turn-by-mouse state0 (+ RS p.x 1) p.y "button-down") (mov 'dummy))
+  (check-equal? (act-on-button-down state0 (+ RS p.x 1) p.y "button-down") (mov 'dummy))
 
   (check-false (game-over? state0) "state0 is an okay starting state"))

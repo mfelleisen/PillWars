@@ -58,7 +58,7 @@
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`
 (define (act s x y)
   (cond
-    [(mouse-click-to-turn? s x y) => (λ (θ) (rotate-my-fighter s (- θ)))]
+    [(mouse-click-to-turn? s x y) => (λ (θ) (rotate-my-fighter s θ))]
     [(mouse-click-on-pill? s x y) => (λ (pill) (eat-my-fighter s pill))]
     [else (move-my-fighter s)]))
 

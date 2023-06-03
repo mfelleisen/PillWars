@@ -62,7 +62,7 @@
     (big-bang start-with
       [to-draw    (strip (draw-explosions BG))]
       [register   server-ip]
-      [on-mouse   (enable turn-by-mouse)]
+      [on-mouse   (enable act-on-button-down)]
       [on-key     (enable navigate-by-key)]
       [on-receive human-receive]
       [name       my-name]
