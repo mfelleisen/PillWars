@@ -154,7 +154,7 @@
 
   (define fighter6   (fighter 0.0  0+1i         0 "" 'default))
   (define fighter6-- (fighter 0.0  (* 1.1 0+1i) 0 "" 'default))
-  (define fighter6++ (fighter 0.0  +1+0i        0 "" 'default))
+  (define fighter6++ (fighter 0.0  -1+0i        0 "" 'default))
 
   (define fighter-stuck (fighter 364.464+195.141i -59.953+67.385i 0 "AI" 'default)))
 
