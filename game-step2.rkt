@@ -19,6 +19,10 @@
   (define server "antarctica.ccs.neu.edu")
   (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
 
+(define (single-client my-name)
+  (define server "antarctica.ccs.neu.edu")
+  (local-main my-name server))
+
 (define (main-clients-local my-name)
   (define server LOCALHOST)
   (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
@@ -182,6 +186,12 @@
 
 (module+ client
   (main-clients "Benjamin"))
+
+(module+ cf
+  (single-client "Christopher"))
+
+(module+ mf
+  (single-client "Matthias"))
 
 (module+ local
   (main-clients-local "Benjamin"))
