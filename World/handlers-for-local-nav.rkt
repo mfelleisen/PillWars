@@ -26,8 +26,8 @@
   (require rackunit))
 
 ;; ---------------------------------------------------------------------------------------------------
-(define LEFT  (/ pi +60))
-(define RIGHT (/ pi -60))
+(define LEFT  (/ pi -60))
+(define RIGHT (/ pi +60))
 
 #; {State KeyEvent -> State}
 ;; allow player to navigate the game space via keystrokes:
@@ -59,7 +59,7 @@
 (define (act s x y)
   (cond
     [(mouse-click-to-turn? s x y) => (λ (θ) (rotate-my-fighter s θ))]
-    [(mouse-click-on-pill? s x y) => (λ (pill) (eat-my-fighter s pill))]
+    [(mouse-click-on-pill? s x y) => (λ (_) (eat-my-fighter s _))]
     [else (move-my-fighter s)]))
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -76,9 +76,9 @@
   (check-equal? (navigate-by-key state0 " ") (eat-my-fighter state0))
   (check-equal? (navigate-by-key state0 "a") state0)
 
-  (check-equal? (act-on-button-down state0 10 50 "button-up") state0)
+  (check-equal? (act-on-button-down state0 10 50 "button-up") #false)
   (check-equal? (act-on-button-down state0 10 50 "button-down")
-                (rotate-my-fighter state0 (- (mouse-click-to-turn? state0 10 50))))
+                (rotate-my-fighter state0  (mouse-click-to-turn? state0 10 50)))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
