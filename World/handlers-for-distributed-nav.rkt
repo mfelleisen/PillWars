@@ -46,7 +46,7 @@
     [else #false]))
 
 ;; ---------------------------------------------------------------------------------------------------
-#; {State N N MouseEvent -> State}
+#; {State N N MouseEvent -> (U False State)}
 ;; allow player to navigate the game space via mouse clicks:
 ;; -- button-down in the yellow space of a fighter changes its direction
 ;; -- button-down in any white space moves "my" fighter straight ahead
