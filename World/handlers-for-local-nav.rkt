@@ -44,7 +44,7 @@
     [else s]))
 
 ;; ---------------------------------------------------------------------------------------------------
-#; {State N N MouseEvent -> State}
+#; {State N N MouseEvent -> (U False State)}
 ;; allow player to navigate the game space via mouse clicks:
 ;; -- button-down in the yellow space of a fighter changes its direction
 ;; -- button-down in any white space moves "my" fighter straight ahead
@@ -52,7 +52,7 @@
 (define (act-on-button-down s x y me)
   (cond
     [(mouse=? "button-down" me) (act s x y)]
-    [else s]))
+    [else #false]))
 
 #; {State N N -> State}
 ;; ASSUME this is what happens when a player pressed the mouse at `(x,y)` in state `s`

@@ -12,17 +12,8 @@
 (require 2htdp/universe)
 
 ;; ---------------------------------------------------------------------------------------------------
-;; {String -> State}
-(define (main my-name [state0 #false])
-  (define start-with (or state0 (create-state my-name)))
-  (big-bang start-with
-    [to-draw   (draw-state BG)]
-    [on-mouse  act-on-button-down]
-    [on-key    navigate-by-key]
-    [name      my-name]
-    [stop-when game-over? (draw-state BG)]))
-
-;; a turn-based game betweeen a human player and an AI 
+;; {String [State] -> State}
+;; a turn-based game betweeen a human player and an AI; the optional state can make it deterministic 
 (define (main/AI my-name [state0 #false])
   (define start-with (or state0 (create-state (~a my-name))))
   (define end-with
@@ -64,7 +55,9 @@
     [(equal? whose other) i]
     [else
      (define state++ (apply handler state0 others))
-     (interactive other (swap-two-players state++))]))
+     (if (boolean? state++)
+         i
+         (interactive other (swap-two-players state++)))]))
 
 #; {State -> Boolean}
 (define (only-one-player state0)
