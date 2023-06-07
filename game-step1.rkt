@@ -24,14 +24,14 @@
 
 ;; a turn-based game betweeen a human player and an AI 
 (define (main/AI my-name [state0 #false])
-  (define start-with (or state0 (create-state my-name)))
+  (define start-with (or state0 (create-state (~a my-name))))
   (define end-with
     (big-bang (create-interactive start-with)
      [on-tick   (enable AI #;disable: HUMAN (ai-strategy strategy-1))]
      [to-draw   (strip (draw-state BG))]
      [on-mouse  (enable HUMAN #;disable: AI act-on-button-down)]
      [on-key    (enable HUMAN #;disable: AI navigate-by-key)]
-     [name      my-name]
+     [name      (~a my-name)]
      [stop-when (strip game-over?) (strip (draw-state-with-winners BG))]))
   (interactive-winners end-with))
 
@@ -52,7 +52,7 @@
 #; {State -> Interactive}
 ;; add an AI player and set it up to go first 
 (define (create-interactive state)
-  (interactive AI (add-fighter-to-front AI state)))
+  (interactive AI (add-fighter-to-front (~a AI) state)))
 
 #; {Tag Tag [Handler State] -> Interactive Any ... -> Interactive}
 (define ((enable tag other handler) i . others)
