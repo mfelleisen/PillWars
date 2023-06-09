@@ -5,11 +5,9 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/typed/state)
-(require PillWars/Common/typed/fighter)
 (require PillWars/World/typed/handlers-for-local-nav)
 (require PillWars/AI/typed/strategy-1)
 (require PillWars/World/typed/constants)
-(require PillWars/Lib/typed/image)
 (require typed/2htdp/universe)
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -28,16 +26,16 @@
   (interactive-winners end-with))
 
 ;; the next one is added for head-less profiling; derived from the above w/ attempt to make it similar
-(: 2AIs {->* () [State] [Listof String]})
-(define (2AIs [state0 #false])
-  (define state++    (or state0 (create-state (~a AI2))))
-  (define start-with (create-interactive state++))
+(: 2AIs {->* () [Interactive] (Values Interactive [Listof String])})
+(define (2AIs [interactive0 #false])
+  (define state++    (create-state (~a AI2)))
+  (define start-with (or interactive0 (create-interactive state++)))
   (define end-with
     (big-bang/nodraw start-with : Interactive 
-      [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
-      [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
-      [stop-when     (strip game-over?)]))
-  (interactive-winners end-with))
+                     [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
+                     [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
+                     [stop-when     (strip game-over?)]))
+  (values start-with (interactive-winners end-with)))
 
 (define-syntax-rule (big-bang/nodraw state0 : T [on-tick th] [on-other-tick th-other] [stop-when sw?])
   (let loop : T ([state : T state0] [handle : (Pairof (T -> T) (T -> T))  (cons th th-other)])
@@ -52,7 +50,7 @@
 ;; ASSUME the AI can't make the mistake of dropping out
 ;; CONSEQUENCE if the Human player drops out, we notice because the AI player is first. 
 
-(struct interactive [{whose-turn : Symbol} {state : State}] #:transparent #:type-name Interactive)
+(struct interactive [{whose-turn : Symbol} {state : State}] #:prefab #:type-name Interactive)
 #; {type Interactive = [interactive Tag State]}
 #; {type Tag         = .. gensymed symbol .. }
 ;; INVARIANT `whose-turn` and the first player in `state` must be in sync
@@ -96,10 +94,45 @@
 (define (interactive-winners i)
   (match-define [interactive whose state] i)
   (winners state))
+
+;; ---------------------------------------------------------------------------------------------------
+(module+ seed ;; run only once; re-run if ,,/Resources/n-test-{in|out}pyt.rktd are lost
+  (require PillWars/typed/test-aux)
+
+  (: create-and-save-tests (-> Natural Void))
+  (define (create-and-save-tests n)
+    (for ([tst n])
+      (define-values (start-interactive result) [2AIs])
+      (write-test-pair tst start-interactive result)))
   
+  (: write-test-pair (-> Natural Interactive [Listof String] Void))
+  (define (write-test-pair tst input expected)
+    (with-output-to-file (file-name tst in) (λ () (write input)) #:exists 'replace)
+    (with-output-to-file (file-name tst out) (λ () (write expected)) #:exists 'replace))
+    
+  (time (create-and-save-tests 10)))
 
 ;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (time (2AIs))
+  (require PillWars/typed/test-aux)
+  (require typed/rackunit)
+
+  (define PREFIX "../")
+  
+  (: read-from (-> String (U Interactive [Listof String])))
+  (define (read-from fname)
+    (cast (with-input-from-file (~a PREFIX dir fname) read) (U Interactive [Listof String])))
+
+  (define input*  (map (λ ({i : String}) (cast (read-from i) Interactive)) (get-files in)))
+  (define expect* (map (λ ({e : String}) (cast (read-from e) [Listof String])) (get-files out)))
+
+  (time
+   (for ([i input*] [e expect*])
+     (define-values (_ result) [2AIs i])
+     (check-equal? result e)))
+
   #;
   (main/AI "WhoSPlaying" #; state0))
+
+
+

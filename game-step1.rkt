@@ -28,15 +28,15 @@
 
 ;; the next one is added for head-less profiling; derived from the above w/ attempt to make it similar
 ; (: 2AIs {->* () [State] [Listof String]})
-(define (2AIs [state0 #false])
-  (define state++    (or state0 (create-state (~a AI2))))
-  (define start-with (create-interactive state++))
+(define (2AIs [interactive0 #false])
+  (define state++    (create-state (~a AI2)))
+  (define start-with (or interactive0 (create-interactive state++)))
   (define end-with
     (big-bang/nodraw start-with 
-      [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
-      [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
-      [stop-when     (strip game-over?)]))
-  (interactive-winners end-with))
+                     [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
+                     [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
+                     [stop-when     (strip game-over?)]))
+  (values start-with (interactive-winners end-with)))
 
 (define-syntax-rule (big-bang/nodraw state0 [on-tick th] [on-other-tick th-other] [stop-when sw?])
   (let loop ([state state0] [handle (cons th th-other)])
@@ -51,7 +51,7 @@
 ;; ASSUME the AI can't make the mistake of dropping out
 ;; CONSEQUENCE if the Human player drops out, we notice because the AI player is first. 
 
-(struct interactive [whose-turn state] #:transparent)
+(struct interactive [whose-turn state] #:prefab)
 #; {type Interactive = [interactive Tag State]}
 #; {type Tag         = .. gensymed symbol .. }
 ;; INVARIANT `whose-turn` and the first player in `state` must be in sync
@@ -94,10 +94,26 @@
 (define (interactive-winners i)
   (match-define [interactive whose state] i)
   (winners state))
-  
 
 ;; ---------------------------------------------------------------------------------------------------
+;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (time (2AIs))
+  (require PillWars/typed/test-aux)
+  (require typed/rackunit)
+
+  (define PREFIX "")
+  
+  ; (: read-from (-> String (U Interactive [Listof String])))
+  (define (read-from fname)
+    (with-input-from-file (~a PREFIX dir fname) read))
+
+  (define input*  (map (λ (i) (read-from i)) (get-files in "")))
+  (define expect* (map (λ (e) (read-from e)) (get-files out "")))
+
+  (time
+   (for ([i input*] [e expect*])
+     (define-values (_ result) [2AIs i])
+     (check-equal? result e)))
+
   #;
   (main/AI "WhoSPlaying" #; state0))
