@@ -1,0 +1,5 @@
+#s(interactive AI113424
+               #s(state
+                  (#s(fighter 396+216i 10.0+2.0i 0 "AI113424" default-image)
+                   #s(fighter 28+572i 7.0+1.0i 0 "AI113425" default-image))
+                  (#s((red pill 2) 58+300i 5 3/10) #s((red pill 2) 153+360i 4 1/10) #s((red pill 2) 833+10i 4 2/5) #s((red pill 2) 1082+747i 3 1/5) #s((red pill 2) 702+526i 1 2/5) #s((red pill 2) 583+251i 1 1/10) #s((red pill 2) 833+187i 5 1/2) #s((red pill 2) 512+650i 2 2/5) #s((red pill 2) 222+763i 4 1/5) #s((red pill 2) 494+256i 3 2/5) #s((red pill 2) 215+296i 4 2/5) #s((red pill 2) 648+662i 5 1/10) #s((red pill 2) 959+586i 4 3/10) #s((red pill 2) 719+313i 5 1/5) #s((red pill 2) 665+548i 5 1/5) #s((red pill 2) 285+305i 5 1/2) #s((red pill 2) 965+130i 4 3/10) #s((red pill 2) 299+53i 3 1/2) #s((red pill 2) 250+773i 1 3/10) #s((red pill 2) 119+74i 1 3/10) #s((blue pill 2) 578+675i 8) #s((blue pill 2) 146+716i 7) #s((blue pill 2) 680+537i 11) #s((blue pill 2) 93+284i 9) #s((blue pill 2) 1107+571i 8) #s((blue pill 2) 263+406i 9) #s((blue pill 2) 742+504i 10) #s((blue pill 2) 30+778i 13) #s((blue pill 2) 875+335i 8) #s((blue pill 2) 1163+416i 10))))

@@ -5,7 +5,6 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/state)
-(require PillWars/Common/fighter)
 (require PillWars/World/handlers-for-local-nav)
 (require PillWars/AI/strategy-1)
 (require PillWars/World/constants)
@@ -36,7 +35,7 @@
                      [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
                      [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
                      [stop-when     (strip game-over?)]))
-  (values start-with (interactive-winners end-with)))
+  (interactive-winners end-with))
 
 (define-syntax-rule (big-bang/nodraw state0 [on-tick th] [on-other-tick th-other] [stop-when sw?])
   (let loop ([state state0] [handle (cons th th-other)])
@@ -112,8 +111,7 @@
 
   (time
    (for ([i input*] [e expect*])
-     (define-values (_ result) [2AIs i])
-     (check-equal? result e)))
+     (check-equal? [2AIs i] e)))
 
   #;
   (main/AI "WhoSPlaying" #; state0))

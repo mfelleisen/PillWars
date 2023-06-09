@@ -26,7 +26,7 @@
   (interactive-winners end-with))
 
 ;; the next one is added for head-less profiling; derived from the above w/ attempt to make it similar
-(: 2AIs {->* () [Interactive] (Values Interactive [Listof String])})
+(: 2AIs {->* () [Interactive] [Listof String]})
 (define (2AIs [interactive0 #false])
   (define state++    (create-state (~a AI2)))
   (define start-with (or interactive0 (create-interactive state++)))
@@ -35,7 +35,8 @@
                      [on-tick       (enable AI #;disable: AI2 (ai-strategy strategy-1))]
                      [on-tick-other (enable AI2 #;disable: AI (ai-strategy strategy-1))]
                      [stop-when     (strip game-over?)]))
-  (values start-with (interactive-winners end-with)))
+  (set! *start-interactive start-with)
+  (interactive-winners end-with))
 
 (define-syntax-rule (big-bang/nodraw state0 : T [on-tick th] [on-other-tick th-other] [stop-when sw?])
   (let loop : T ([state : T state0] [handle : (Pairof (T -> T) (T -> T))  (cons th th-other)])
@@ -96,14 +97,16 @@
   (winners state))
 
 ;; ---------------------------------------------------------------------------------------------------
+(define *start-interactive (create-interactive (plain-state)))
+
 (module+ seed ;; run only once; re-run if ,,/Resources/n-test-{in|out}pyt.rktd are lost
   (require PillWars/typed/test-aux)
 
   (: create-and-save-tests (-> Natural Void))
   (define (create-and-save-tests n)
     (for ([tst n])
-      (define-values (start-interactive result) [2AIs])
-      (write-test-pair tst start-interactive result)))
+      (define result [2AIs])
+      (write-test-pair tst *start-interactive result)))
   
   (: write-test-pair (-> Natural Interactive [Listof String] Void))
   (define (write-test-pair tst input expected)
@@ -128,11 +131,7 @@
 
   (time
    (for ([i input*] [e expect*])
-     (define-values (_ result) [2AIs i])
-     (check-equal? result e)))
+     (check-equal? [2AIs i] e)))
 
   #;
   (main/AI "WhoSPlaying" #; state0))
-
-
-
