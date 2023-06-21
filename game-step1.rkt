@@ -95,11 +95,23 @@
   (winners state))
 
 ;; ---------------------------------------------------------------------------------------------------
-;; ---------------------------------------------------------------------------------------------------
 (module+ test
-  (require PillWars/typed/test-aux)
-  (require typed/rackunit)
+  (provide run)
+  
+  (require rackunit)
 
+  ; (: run (-> [Listof Interactive] [Listof [Listof String]] (-> Void)))
+  (define (run input* expect*)
+    (lambda ()
+      (for ([i input*] [e expect*])
+        (check-equal? [2AIs i] e)))))
+
+;; ---------------------------------------------------------------------------------------------------
+(module+ examples-local
+  (provide input* expect*)
+
+  (require PillWars/typed/test-aux)
+  
   (define PREFIX "")
   
   ; (: read-from (-> String (U Interactive [Listof String])))
@@ -107,11 +119,9 @@
     (with-input-from-file (~a PREFIX dir fname) read))
 
   (define input*  (map (λ (i) (read-from i)) (get-files in "")))
-  (define expect* (map (λ (e) (read-from e)) (get-files out "")))
+  (define expect* (map (λ (e) (read-from e)) (get-files out ""))))
 
-  (time
-   (for ([i input*] [e expect*])
-     (check-equal? [2AIs i] e)))
-
-  #;
-  (main/AI "WhoSPlaying" #; state0))
+(module+ perf-untyped 
+  (require (submod ".." examples-local))
+  (require (submod ".." test))
+  (time [(run input* expect*)]))

@@ -9,26 +9,29 @@ Run the following
 
 ```
 $ raco make game-step1.rkt
-$ raco test game-step1.rkt
 ```
 
-in both `../` and `./` to get timing for the untyped and typed version,
-respectively. Here is the result of the standard setup:
+in both `../` and `./` 
 
-```
-fully typed: cpu time: 1491 real time: 1512 gc time: 30
-untyped:     cpu time:  276 real time:  278 gc time: 63
-```
+Then run the following commands to get similar timings: 
 
-That is, the fully typed version is almost six times (6x) slower than the
-untyped base version. 
+| `raco test -s .. game-step1.rkt`  | where | performance                                   |
+| --------------------------------- | ----- | --------------------------------------------- |
+| `perf-io`    			    | `./`  |  `cpu time: 1576 real time: 1602 gc time: 31` |
+| `perf-local`   		    | `./`  |  `cpu time:  245 real time:  247 gc time: 29` |
+| `perf-untyped` 		    | `../` |  `cpu time:  276 real time:  278 gc time: 63` |
 
-We can restore the usual "balance" by including the starter-scenarios directly
-in the programs:
 
-```
-fully typed: cpu time: 245 real time: 247 gc time: 29
-```
+Here is what these runs time: 
+
+- `perf-io` [typed] sets up examples by reading the scenarios from a file and _then_ timing a run of all
+- `perf-local` [typed] defines examples in the module and then runs scenarios and _then_ timing a run of all
+- `perf-untyped` [untyped] sets up examples by reading the scenarios from a file and _then_ timing a run of all
+
+That is, the standard fully typed version is almost six times (6x)
+slower than the untyped base version. This problem is repaired by
+including the starter scenarios in the file .. but that feels like
+cheating.  
 
 #### Problem 
 
@@ -42,8 +45,7 @@ wrapper, and that imposes this huge performance penalty.
 
 #### TODO
 
-Still working on this. 
-
+Still working on this a bit. 
 
 ### Conversion Experience
 
