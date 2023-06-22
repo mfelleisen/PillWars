@@ -44,12 +44,23 @@ proper type .. but all of that feels like cheating.
 
 #### Problem 
 
-So I/O of prefabs messes things up, even if we don't include the I/O effort in the timing part.
+So I/O of prefabs messes things up, even if we don't include the I/O effort in
+the timing part. 
 
 #### Diagnosis
 
 Typed Racket wraps even immutable nests of structs and lists into an `Any`
 wrapper, and that imposes this huge performance penalty.
+
+#### Take 2: Parse! 
+
+Reading a file -- even one you created -- may never yield exactly what you
+want. Why do we have `write` and `read` in Racket/Scheme? Why are they inverses
+for prefabs? Convenience. But someone may touch the file and accidentally mess
+up its structure and then we don't get back the thing we expect. So explicitly
+parsing the read input is the right thing and then it all works out for Types
+too. 
+
 
 ### Conversion Experience
 
