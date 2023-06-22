@@ -80,7 +80,7 @@
          [s (rad->deg s)]
          [s (round s)]
          [s (inexact->exact s)]
-         [s (random (cast s Integer))])
+         [s (random (assert s exact-integer?))])
     (deg->rad s)))
 
 (: rotate->reach {Fighter [Listof Pill] Radian -> (U False Radian)})
@@ -129,7 +129,7 @@
 (module+ examples
   (define pill*0 (list red0))
   (define pill*1 [list red0 blue0])
-  (define fighter4 (rotate-fighter fighter2 (cast (rotate->reach fighter2 pill*0 MAX-RAD) Degree)))
+  (define fighter4 (rotate-fighter fighter2 (assert (rotate->reach fighter2 pill*0 MAX-RAD) degree?)))
   (define fighter3 (move-fighter fighter4 (+ steps-2 3))))
 
 (module+ test ;; rotate first, then reachable 

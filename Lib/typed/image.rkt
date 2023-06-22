@@ -77,7 +77,7 @@
     s))
 
 (: ~i (-> Real Integer))
-(define (~i x) (cast (inexact->exact (round x)) Integer))
+(define (~i x) (assert (inexact->exact (round x)) exact-integer?))
 
 
 ;; the next two functions were designed by "visual inspection"

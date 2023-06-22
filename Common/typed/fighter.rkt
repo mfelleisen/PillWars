@@ -73,10 +73,12 @@
 
 (module+ deep
   (provide deep-cast-fighter)
+  ;   (: Bs? (-> Any Boolean : Bs))
+  (define (Bs? x) (or (string? x) (case x [(default-image xwing tie) #t] [else #F])))
   (: deep-cast-fighter (-> Any Fighter))
   (define (deep-cast-fighter f)
-    (match-define [fighter p v s n b] (cast f Fighter))
-    (fighter (cast p Complex) (cast v Complex) (cast s Natural) (cast n String) (cast b Bs))))
+    (match-define [fighter p v s n b] (assert f fighter?))
+    (fighter (assert p complex?) (assert v complex?) (assert s natural?) (assert n string?) (assert b Bs?))))
   
 (: create-fighter (->* (String) (Bs) Fighter))
 (define (create-fighter name [base 'default-image])

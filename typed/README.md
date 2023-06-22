@@ -22,6 +22,13 @@ Then run the following commands to get similar timings:
 | `per-deep`			    | `./`  |  `cpu time:  222 real time:  224 gc time: 30` |
 | `perf-untyped` 		    | `../` |  `cpu time:  276 real time:  278 gc time: 63` |
 
+Sam reminded me that `assert` is faster than `cast`. I was able to convert many
+but not all `cast` to `assert` and here are the somewhat better numbers:   
+
+| `raco test -s .. game-step1.rkt`  | where | performance                                   |
+| --------------------------------- | ----- | --------------------------------------------- |
+| `per-deep`			    | `./`  |  `cpu time:  195 real time:  197 gc time:  5  |
+
 Here is what these runs time: 
 
 - `perf-io` [typed] sets up examples by reading the scenarios from a file and _then_ time a run of all
@@ -37,7 +44,7 @@ proper type .. but all of that feels like cheating.
 
 #### Problem 
 
-So I/O messes things up, even if we don't include the I/O effort in the timing part.
+So I/O of prefabs messes things up, even if we don't include the I/O effort in the timing part.
 
 #### Diagnosis
 

@@ -64,8 +64,8 @@
   (: deep-cast-pill (-> Any Pill))
   (define (deep-cast-pill p)
     (match p
-      [(blue p s) (blue (cast p Complex) (cast s Natural))]
-      [(red p s a) (red (cast p Complex) (cast s Natural) (cast a Real))])))
+      [(blue p s) (blue (assert p complex?) (assert s natural?))]
+      [(red p s a) (red (assert p complex?) (assert s natural?) (assert a real?))])))
 
 (define MAX-PILLS 30)
 

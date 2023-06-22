@@ -82,13 +82,13 @@
 
   (check-equal? (act-on-button-down state0 10 50 "button-up") #false)
   (check-equal? (act-on-button-down state0 10 50 "button-down")
-                (rotate-my-fighter state0 (cast (mouse-click-to-turn? state0 10 50) Radian)))
+                (rotate-my-fighter state0 (assert (mouse-click-to-turn? state0 10 50) real?)))
 
   (define a-pill (first (state-pills state0)))
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
 
   (: ~i (-> Real Integer))
-  (define (~i x) (cast (inexact->exact (round x)) Integer))
+  (define (~i x) (assert (inexact->exact (round x)) exact-integer?))
 
   (check-equal? (act-on-button-down state0 (~i (+ RS p.x 1)) (~i p.y) "button-down")
                 (move-my-fighter state0))

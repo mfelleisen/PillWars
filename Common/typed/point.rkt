@@ -63,5 +63,5 @@
   (make-point (random (~i WIDTH)) (random (~i HEIGHT))))
 
 (: ~i (-> Real Integer))
-(define (~i x) (cast (inexact->exact (round x)) Integer))
+(define (~i x) (assert (inexact->exact (round x)) exact-integer?))
 

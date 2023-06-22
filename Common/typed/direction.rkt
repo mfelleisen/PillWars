@@ -8,6 +8,8 @@
  Direction
  Radian
  Degree
+ degree?
+ radian? 
 
  #; {-> Direction}
  create-random-direction 
@@ -31,6 +33,9 @@
 (define-type Direction Complex)
 (define-type Radian Real)
 (define-type Degree Real)
+
+(define degree? real?)
+(define radian? real?)
 
 (: rad->deg {Radian -> Degree})
 (define (rad->deg r)

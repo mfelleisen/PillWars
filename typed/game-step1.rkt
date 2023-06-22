@@ -76,7 +76,7 @@
          (cond
            [(only-one-player state0)
             (define state++ (handler state0 rem ...))
-            (interactive AI (cast state++ State))]
+            (interactive AI (assert state++ state?))]
            [(equal? whose other) i]
            [else
             (define state++ (handler state0 rem ...))
@@ -138,6 +138,7 @@
   
   (: deep-cast-interactive (-> Any Interactive))
   (define (deep-cast-interactive i)
+    ;; I can't find a way to use `assert` here 
     (match-define [interactive tag s] (cast i Interactive))
     (interactive tag (deep-cast-state s))))
 
@@ -153,6 +154,7 @@
     (with-input-from-file (~a PREFIX dir fname) read))
   
   (define input*  (map (λ ({i : String}) (deep-cast-interactive (read-from i))) (get-files in)))
+  ;; I can't find a way to use `assert` here 
   (define expect* (map (λ ({e : String}) (cast (read-from e) [Listof String])) (get-files out))))
 
 (module+ perf-deep
@@ -171,7 +173,8 @@
   (: read-from (-> String Any))
   (define (read-from fname)
     (with-input-from-file (~a PREFIX dir fname) read))
-  
+
+  ;; I can't find a way to use `assert` here 
   (define input*  (map (λ ({i : String}) (cast (read-from i) Interactive)) (get-files in)))
   (define expect* (map (λ ({e : String}) (cast (read-from e) [Listof String])) (get-files out))))
 

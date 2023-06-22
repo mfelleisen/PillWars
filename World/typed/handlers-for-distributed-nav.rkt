@@ -87,7 +87,7 @@
   (define-values [p.x p.y] (->values (pill-posn a-pill)))
 
   (: ~i (-> Real Integer))
-  (define (~i x) (cast (inexact->exact (round x)) Integer))
+  (define (~i x) (assert (inexact->exact (round x)) exact-integer?))
 
   (check-equal? (act-on-button-down state0 (+ RS (~i p.x) 1) (~i p.y) "button-down") (mov 'dummy))
 

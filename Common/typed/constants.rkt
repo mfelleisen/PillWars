@@ -17,10 +17,10 @@
 ;; -----------------------------------------------------------------------------
 (define WIDTH  : Nonnegative-Real 1200)
 (define HEIGHT : Nonnegative-Real 800)
-(define RS (cast (/ WIDTH 40) Nonnegative-Real))
+(define RS (assert (/ WIDTH 40) positive?))
 
 (define MAX-RAD (/ pi 3))
 
-(define RADAR (cast (/ WIDTH 5) Nonnegative-Real))
-(define FWING  (cast (/ RADAR 3) Nonnegative-Real))
-(define FANGLE (cast (/ MAX-RAD 2) Nonnegative-Real))
+(define RADAR (assert (/ WIDTH 5) positive?))
+(define FWING  (assert (/ RADAR 3) positive?))
+(define FANGLE (assert (/ MAX-RAD 2) positive?))

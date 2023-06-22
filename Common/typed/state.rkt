@@ -6,6 +6,7 @@
 (provide
  #; {type State = [state [Listof Fighter] [Listof Pill]] || the first fighter is mine}
  State
+ state?
 
  #; {-> State}
  plain-state
@@ -128,6 +129,7 @@
                
   (: deep-cast-state (-> Any State))
   (define (deep-cast-state s)
+    ;; I can't find a way to use `assert` here 
     (match-define [state f* p*] (cast s State))
     (state (map deep-cast-fighter f*) (map deep-cast-pill p*))))
 
@@ -330,7 +332,8 @@
   [(draw-state BG) (state (list fighter-stuck) pills-stuck)]
   (check-true (image? ([draw-state BG] state0))))
 
-(module+ test ;; eat-my-fighter 
+(module+ test ;; eat-my-fighter
+  ;; I can't find a way to use `assert` here 
   (define fighter5+ (for/fold ([f : Fighter fighter5]) ([i 10]) (cast (move-fighter f) Fighter)))
   (define state2 (state (list fighter5+) pill*0))
   (define state2-red- (state (list (eat-fighter fighter5+ -1)) pill*0))
@@ -372,6 +375,7 @@
 (define (fighter-action-strategy-1 state0)
   (define mine   (state-my-fighter state0))
   (define pill*  (filter-map (λ (p) (and (red? p) p)) (state-pills state0)))
+  ;; I can't find a way to use `assert` here 
   (define action (strategy-1 mine (cast pill* [Listof Pill])))
   (execute state0 action))
 
@@ -383,7 +387,7 @@
   (check-equal? (execute state1 (eat (pill-posn red0))) state1-red)
 
   (define state4 (state (list fighter4) pill*0))
-  (define state4-mov (state (list (cast (move-fighter fighter4) Fighter)) pill*0))
+  (define state4-mov (state (list (assert (move-fighter fighter4) fighter?)) pill*0))
   (check-equal? (execute state4 (mov 'me)) state4-mov)
 
   (define state5 (state (list fighter5) pill*0))
