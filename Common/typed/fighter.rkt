@@ -71,6 +71,13 @@
 (struct fighter [{posn : Point} {velocity : Direction} {score : Natural} {name : String} {base : Bs}]
   #:prefab #:type-name Fighter)
 
+(module+ deep
+  (provide deep-cast-fighter)
+  (: deep-cast-fighter (-> Any Fighter))
+  (define (deep-cast-fighter f)
+    (match-define [fighter p v s n b] (cast f Fighter))
+    (fighter (cast p Complex) (cast v Complex) (cast s Natural) (cast n String) (cast b Bs))))
+  
 (: create-fighter (->* (String) (Bs) Fighter))
 (define (create-fighter name [base 'default-image])
   (fighter (create-random-point) (create-random-direction) 0 name base))

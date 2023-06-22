@@ -19,33 +19,30 @@ Then run the following commands to get similar timings:
 | --------------------------------- | ----- | --------------------------------------------- |
 | `perf-io`    			    | `./`  |  `cpu time: 1576 real time: 1602 gc time: 31` |
 | `perf-local`   		    | `./`  |  `cpu time:  245 real time:  247 gc time: 29` |
+| `per-deep`			    | `./`  |  `cpu time:  222 real time:  224 gc time: 30` |
 | `perf-untyped` 		    | `../` |  `cpu time:  276 real time:  278 gc time: 63` |
-
 
 Here is what these runs time: 
 
-- `perf-io` [typed] sets up examples by reading the scenarios from a file and _then_ timing a run of all
-- `perf-local` [typed] defines examples in the module and then runs scenarios and _then_ timing a run of all
-- `perf-untyped` [untyped] sets up examples by reading the scenarios from a file and _then_ timing a run of all
+- `perf-io` [typed] sets up examples by reading the scenarios from a file and _then_ time a run of all
+- `per-deep` [typed] sets up examples by reading the scenarios from a file, performs a deep cast, and _then_ times a run of all
+- `perf-local` [typed] defines examples in the module and then runs scenarios and _then_ times a run of all
+- `perf-untyped` [untyped] sets up examples by reading the scenarios from a file and _then_ times a run of all
 
-That is, the standard fully typed version is almost six times (6x)
-slower than the untyped base version. This problem is repaired by
-including the starter scenarios in the file .. but that feels like
-cheating.  
+That is, the standard fully typed version is almost six times (6x) slower than
+the untyped base version. This problem is repaired by including the starter
+scenarios in the file or adding about 20 lines of code to manually traverse the
+prefab structures that read created and casting everything manually to its
+proper type .. but all of that feels like cheating.
 
 #### Problem 
 
-So I/O messes things up, even if we don't include the I/O effort in the timing
-part.
+So I/O messes things up, even if we don't include the I/O effort in the timing part.
 
 #### Diagnosis
 
 Typed Racket wraps even immutable nests of structs and lists into an `Any`
 wrapper, and that imposes this huge performance penalty.
-
-#### TODO
-
-Still working on this a bit. 
 
 ### Conversion Experience
 

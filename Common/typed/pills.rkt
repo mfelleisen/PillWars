@@ -59,6 +59,14 @@
 (struct blue pill [] #:prefab #:type-name Blue)
 (struct red pill [{acceleration : Real}] #:prefab #:type-name Red)
 
+(module+ deep 
+  (provide deep-cast-pill)
+  (: deep-cast-pill (-> Any Pill))
+  (define (deep-cast-pill p)
+    (match p
+      [(blue p s) (blue (cast p Complex) (cast s Natural))]
+      [(red p s a) (red (cast p Complex) (cast s Natural) (cast a Real))])))
+
 (define MAX-PILLS 30)
 
 (: pill-at (-> Point Pill))

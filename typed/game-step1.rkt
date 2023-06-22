@@ -131,12 +131,41 @@
         (check-equal? [2AIs i] e)))))
 
 ;; ---------------------------------------------------------------------------------------------------
+(module+ deep
+  (provide deep-cast-interactive)
+
+  (require (submod PillWars/Common/typed/state deep))
+  
+  (: deep-cast-interactive (-> Any Interactive))
+  (define (deep-cast-interactive i)
+    (match-define [interactive tag s] (cast i Interactive))
+    (interactive tag (deep-cast-state s))))
+
+(module+ examples-deep
+  (provide input* expect*)
+
+  (require (submod ".." deep))
+  (require PillWars/typed/test-aux)
+  (define PREFIX "../")
+  
+  (: read-from (-> String Any))
+  (define (read-from fname)
+    (with-input-from-file (~a PREFIX dir fname) read))
+  
+  (define input*  (map (λ ({i : String}) (deep-cast-interactive (read-from i))) (get-files in)))
+  (define expect* (map (λ ({e : String}) (cast (read-from e) [Listof String])) (get-files out))))
+
+(module+ perf-deep
+  (require (submod ".." examples-deep))
+  (require (submod ".." test))
+  (time [(run input* expect*)]))
+
+;; ---------------------------------------------------------------------------------------------------
 (module+ examples-io
 
   (provide input* expect*)
 
   (require PillWars/typed/test-aux)
-
   (define PREFIX "../")
   
   (: read-from (-> String Any))

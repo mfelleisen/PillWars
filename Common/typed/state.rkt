@@ -118,6 +118,19 @@
 ;; ---------------------------------------------------------------------------------------------------
 (struct state [{fighters : [Listof Fighter]} {pills : {Listof Pill}}] #:prefab #:type-name State)
 
+(module+ deep
+  (provide deep-cast-state)
+  (require (submod PillWars/Common/typed/fighter deep))
+  (require (submod PillWars/Common/typed/pills deep))
+  (require/typed srfi/1
+                 [(list-copy list-copy/f) (-> [Listof Fighter] [Listof Fighter])]
+                 [(list-copy list-copy/p) (-> [Listof Pill] [Listof Pill])])
+               
+  (: deep-cast-state (-> Any State))
+  (define (deep-cast-state s)
+    (match-define [state f* p*] (cast s State))
+    (state (map deep-cast-fighter f*) (map deep-cast-pill p*))))
+
 (: empty-state (-> State))
 (define (empty-state)
   (state '() '[]))
