@@ -8,7 +8,7 @@
 (require PillWars/AI/strategy-1)
 (require PillWars/World/handlers-for-distributed-nav)
 (require PillWars/World/constants)
-(require PillWars/Universe/handlers-for-universe)
+(require PillWars/Universe/typed/handlers-for-universe) ;; accident 
 (require 2htdp/universe)
 
 ;; ---------------------------------------------------------------------------------------------------

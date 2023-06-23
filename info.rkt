@@ -13,7 +13,6 @@
   `("base"
      "typed-racket-lib"
      "rackunit-typed"
-     "srfi-lite-lib"
      "2htdp-typed"
      "contract-profile"
      "profile-lib"
@@ -26,9 +25,4 @@
   `( ,sw-dev
      "typed-racket-lib"
       "rackunit-typed"
-;      "gui-lib"
-;      "draw-lib"
-;      "data-enumerate-lib"
-;      "at-exp-lib"
-;      "sandbox-lib"
       "rackunit-lib"))

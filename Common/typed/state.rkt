@@ -123,10 +123,7 @@
   (provide deep-cast-state)
   (require (submod PillWars/Common/typed/fighter deep))
   (require (submod PillWars/Common/typed/pills deep))
-  (require/typed srfi/1
-                 [(list-copy list-copy/f) (-> [Listof Fighter] [Listof Fighter])]
-                 [(list-copy list-copy/p) (-> [Listof Pill] [Listof Pill])])
-               
+  
   (: deep-cast-state (-> Any State))
   (define (deep-cast-state s)
     ;; I can't find a way to use `assert` here 
