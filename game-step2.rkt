@@ -8,7 +8,7 @@
 (require PillWars/AI/strategy-1)
 (require PillWars/World/handlers-for-distributed-nav)
 (require PillWars/World/constants)
-(require PillWars/Universe/typed/handlers-for-universe) ;; accident 
+(require PillWars/Universe/handlers-for-universe) ;; accident 
 (require 2htdp/universe)
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; a turn-based game betweeen a human player and an AI 
-(define (local-main my-name (server-ip LOCALHOST)) 
+(define (local-main my-name (server-ip LOCALHOST))
   (define start-with (create-plus my-name))
   (define end-with
     (big-bang start-with
