@@ -1,4 +1,4 @@
-#lang racket
+#lang typed/racket
 
 ;; the handlers for the universe 
 
@@ -41,24 +41,38 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
  end-turn)
 
 ;; ---------------------------------------------------------------------------------------------------
-(require PillWars/Common/fighter)
-(require PillWars/Common/state)
-(require PillWars/Common/action)
-(require PillWars/Lib/list)
-(require 2htdp/universe)
+(require PillWars/Common/typed/fighter)
+(require PillWars/Common/typed/state)
+(require PillWars/Common/typed/action)
+(require PillWars/Lib/typed/list)
+(require/typed 2htdp/universe
+               [#:opaque IWorld iworld?]
+               [#:opaque Mail   mail?]
+               [#:opaque Bundle bundle?]
+               [iworld-name (-> IWorld String)]
+               [make-mail   (-> IWorld (U YourTurn State) Mail)]
+               [make-bundle (-> UState [Listof Mail] [Listof IWorld] Bundle)]
+               [iworld1     IWorld]
+               [iworld2     IWorld]
+               [iworld3     IWorld])
 
 (module+ test
-  (require (submod PillWars/Common/state examples))
-  (require 2htdp/image)
-  (require rackunit))
+  (require (submod PillWars/Common/typed/state examples))
+  (require typed/2htdp/image)
+  (require (except-in typed/rackunit check-equal?))
+  (require/typed rackunit
+                 [check-equal? (∀ (X) (->* (X X) (String) Void))]))
 
 ;; ---------------------------------------------------------------------------------------------------
-(struct ustate [worlds state] #:transparent)
+(struct ustate [{worlds : [Listof IWorld]} {state : State}] #:transparent #:type-name US)
+(define-type UState (U [List IWorld US] US))
 
+(: create-ustate (-> US))
 (define (create-ustate)
   (ustate '() (plain-state)))
 
 ;; ---------------------------------------------------------------------------------------------------
+(: remove-player (-> UState IWorld (U Bundle UState)))
 (define (remove-player us0 iw)
   (match us0
     [(? ustate?) (remove-player-aux us0 iw)]
@@ -72,7 +86,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
             (create-ustate)
             (start-turn us+))])]))
 
-#; {UState IWorld -> UState}
+(: remove-player-aux {UState IWorld -> US})
 (define (remove-player-aux us0 iw)
   (match-define [ustate worlds s0] us0)
   (define i (index-of worlds iw))
@@ -80,6 +94,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
   (if (boolean? i) us0 (ustate (remove iw worlds) (remove-fighter s0 i))))
 
 ;; ---------------------------------------------------------------------------------------------------
+(: end-turn (-> UState IWorld Action (U Bundle UState)))
 (define (end-turn us0 iw msg)
   (match us0
     [(ustate _1 _2) us0]
@@ -89,7 +104,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
        [(act-on-request us msg) => start-turn]
        [else (create-ustate)])]))
              
-#; {UState S-expression -> (U #false UState)}
+(: act-on-request {UState Action -> (U #false US)})
 (define (act-on-request us action)
   (match-define [ustate worlds state] us)
   (define state+ (execute state action))
@@ -101,18 +116,19 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
      (ustate (rest worlds) state+)]))
   
 ;; ---------------------------------------------------------------------------------------------------
+(: add-player (-> Natural (-> UState IWorld (U Bundle UState))))
 ;; add a fighter for the new world until there are `n` fighters 
 (define ((add-player n) us iw)
   (match us
     [(list w x) us]
     [[ustate worlds state]
      (define player-name (iworld-name iw))
-     (define new-fighter (create-fighter player-name (name->image player-name)))
+     (define new-fighter (create-fighter player-name (~a (name->image player-name))))
      (define new-state   (add-fighter-to-front new-fighter state))
      (define new-ustate  [ustate (cons iw worlds) new-state])
      (if (= (length (state-fighters new-state)) n) (start-turn new-ustate) new-ustate)]))
 
-#; {String -> Symbol}
+(: name->image {String -> Symbol})
 (define (name->image s)
   (cond
     [(regexp-match #px"Darth" s) 'tie]
@@ -120,19 +136,26 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
     [else 'default]))
 
 ;; ---------------------------------------------------------------------------------------------------
-#; {UState -> Bundle}
+(: start-turn {UState -> Bundle})
 (define (start-turn us)
   (match-define [ustate worlds state] us)
   (define fighters (state-fighters state))
-  (define mail-for-first (make-mail (first worlds) (your-turn state)))
-  (define mails-for-rest (map (reorder-state state) (rest worlds) (rest fighters)))
+  (define mail-for-first : Mail (make-mail (first worlds) (your-turn state)))
+  (define mails-for-rest : [Listof Mail] (map (reorder-state state) (rest worlds) (rest fighters)))
   (make-bundle (list (first worlds) us) (cons mail-for-first mails-for-rest) '[]))
 
-#; {State -> IWorld Fighter -> [Listof Mail]}
+(: reorder-state {State -> IWorld Fighter -> Mail})
 (define ((reorder-state state) iw fighter)
   [make-mail iw (fighter-first state fighter)])
 
 ;; ---------------------------------------------------------------------------------------------------
+;; WARNING: THE CHECK-EQUAL? TESTS HAVE TO BE REWRITTEN FOR TYPED/RACKET BECAUSE IT DOESN'T TRY EQ?
+;; ON OPAQUE IMPORTS. 
+;; ---------------------------------------------------------------------------------------------------
+
+"WARNING:
+   THE CHECK-EQUAL TESTS HAVE TO BE REWRITTEN FOR TYPED BECAUSE IT DOESN'T TRY EQ? ON OPAQUE IMPORTS."
+
 (module+ test ;; create-ustate 
   (check-true (cons? (state-pills (ustate-state (create-ustate))))))
 

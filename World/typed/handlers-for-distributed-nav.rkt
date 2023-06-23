@@ -89,6 +89,6 @@
   (: ~i (-> Real Integer))
   (define (~i x) (assert (inexact->exact (round x)) exact-integer?))
 
-  (check-equal? (act-on-button-down state0 (+ RS (~i p.x) 1) (~i p.y) "button-down") (mov 'dummy))
+  (check-equal? (act-on-button-down state0 (~i (+ RS p.x 1)) (~i p.y) "button-down") (mov 'dummy))
 
   (check-false (game-over? state0) "state0 is an okay starting state"))

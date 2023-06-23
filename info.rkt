@@ -7,31 +7,25 @@
 (define sw-dev "git://github.com/mfelleisen/SwDev.git")
 
 (define compile-omit-paths
-  '( "Old"
-     "Exploratory"))
+  '( "Profile"))
 
 (define deps
   `("base"
-;     "net-lib"
-;     "draw-lib"
-;     "pict-lib"
-;     "pict-abbrevs"
-;     "scribble-lib"
-;     "typed-racket-lib"
-;     "scribble-abbrevs"
+     "typed-racket-lib"
+     "rackunit-typed"
+     "srfi-lite-lib"
+     "2htdp-typed"
+     "contract-profile"
+     "profile-lib"
      "htdp-lib"
-;     "gregor-lib"
-;     "gui-lib"
-;     "racket-doc"
-;     "profile-lib"
      "rackunit-lib"
-;     "pict-abbrevs"
      "sandbox-lib"
      ,sw-dev))
 
-#;
 (define build-deps
   `( ,sw-dev
+     "typed-racket-lib"
+      "rackunit-typed"
 ;      "gui-lib"
 ;      "draw-lib"
 ;      "data-enumerate-lib"
