@@ -79,11 +79,11 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 (define *state #false)
 (define (remove-player-aux us0 iw)
   (match-define [ustate worlds s0] us0)
+  (set! *state s0)
   (define i (index-of worlds iw))
   (define player-name (iworld-name iw))
-  (eprintf "~a is done\n" player-name)
   (define remaining-players (remove iw worlds))
-  (when (empty? remaining-players) (set! *state s0))
+  (eprintf "~a is done\n" player-name)
   (when (and (cons? remaining-players) (empty? (rest remaining-players)))
     (eprintf "~a\n" (winners *state)))
   ;; the world's state may have already been removed 
