@@ -90,8 +90,12 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 (define (remove-player-aux us0 iw)
   (match-define [ustate worlds s0] us0)
   (define i (index-of worlds iw))
-  ;; the world may have already been removed 
-  (if (boolean? i) us0 (ustate (remove iw worlds) (remove-fighter s0 i))))
+  (define player-name (iworld-name iw))
+  (eprintf "~a is done\n" player-name)
+  (define remaining-players (remove iw worlds))
+  (when (empty? remaining-players) (eprintf "--- game over ---\n"))
+  ;; the world's state may have already been removed 
+  (if (boolean? i) us0 (ustate remaining-players (remove-fighter s0 i))))
 
 ;; ---------------------------------------------------------------------------------------------------
 (: end-turn (-> UState IWorld Action (U Bundle UState)))
@@ -123,6 +127,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
     [(list w x) us]
     [[ustate worlds state]
      (define player-name (iworld-name iw))
+     (eprintf "~a signed up\n" player-name)
      (define new-fighter (create-fighter player-name (~a (name->image player-name))))
      (define new-state   (add-fighter-to-front new-fighter state))
      (define new-ustate  [ustate (cons iw worlds) new-state])
