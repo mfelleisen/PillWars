@@ -53,8 +53,8 @@
 (require PillWars/Common/typed/direction)
 (require PillWars/Common/typed/pills)
 (require PillWars/Common/typed/point)
-(require PillWars/Lib/typed/image)
 (require (only-in PillWars/Common/typed/geometry TIE XWING))
+(require PillWars/Lib/typed/image)
 
 (module+ examples
   (require PillWars/Common/typed/pills)
