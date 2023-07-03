@@ -53,6 +53,7 @@
 (require PillWars/Common/pills)
 (require PillWars/Common/point)
 (require PillWars/Lib/image)
+(require (only-in PillWars/Common/geometry TIE XWING))
 (require 2htdp/image)
 
 (module+ examples
@@ -74,8 +75,6 @@
 
 (define fighter-radar (color 100 77 99 33) #;'yellow)
 (define fighter-color (color 0 255 0 66) #;'green)
-
-(require (only-in PillWars/Common/geometry TIE XWING))
 
 #; {(U 'xwing 'tie 'default) -> Image}
 (define [fancy-image base]
