@@ -120,8 +120,8 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
     [[ustate worlds state]
      (define player-name (iworld-name iw))
      (eprintf "~a signed up\n" player-name)
-     (define new-fighter (create-fighter player-name (~a (name->image player-name))))
-     (define new-state   (add-fighter-to-front new-fighter state))
+     (define new-fighter (create-fighter player-name (name->image player-name)))
+     (define new-state   (add-fighter-to-front new-fighter 'this-dispatch-is-a-bad-idea state))
      (define new-ustate  [ustate (cons iw worlds) new-state])
      (if (= (length (state-fighters new-state)) n) (start-turn new-ustate) new-ustate)]))
 
@@ -155,7 +155,7 @@ stage 2: the player order proceeds according to ascending order of (sign-up) age
 
 (module+ test ;; add-player 
   (define +player-2 (add-player 2))
-  (define state1  (add-fighter-to-front "Benjamin" state0))
+  (define state1  (add-fighter-to-front "Benjamin" 'default state0))
   (define ustate1 (list iworld1 (ustate (list iworld1 iworld3) state1)))
   
   (check-true (ustate? (+player-2 (ustate '() (plain-state)) iworld3)) "add first player")

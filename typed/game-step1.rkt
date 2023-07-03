@@ -64,7 +64,7 @@
 (: create-interactive {State -> Interactive})
 ;; add an AI player and set it up to go first 
 (define (create-interactive state)
-  (interactive AI (add-fighter-to-front (~a AI) state)))
+  (interactive AI (add-fighter-to-front (~a AI) "default" state)))
 
 (require (for-syntax syntax/parse))
 ; (: enable {-> Symbol Symbol [Handler State State] (-> Interactive Any * Interactive)})

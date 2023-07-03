@@ -16,7 +16,7 @@
  #; {-> State}
  empty-state
 
- #; {(U String Symbol Fighter) State -> State}
+ #; {(U String Symbol Fighter) Symbol State -> State}
  ;; make a player with the give name and add it to the front of the player list of `state`
  add-fighter-to-front
 
@@ -123,10 +123,10 @@
   (define the-pills  (create-pills 20))
   (state (list my-fighter) the-pills))
 
-(define (add-fighter-to-front its-name-or-a-fighter state0)
+(define (add-fighter-to-front its-name-or-a-fighter fighter-type state0)
   (cond
     [(or (symbol? its-name-or-a-fighter) (string? its-name-or-a-fighter))
-     (define my-fighter (create-fighter its-name-or-a-fighter))
+     (define my-fighter (create-fighter its-name-or-a-fighter fighter-type))
      (state (cons my-fighter (state-fighters state0)) (state-pills state0))]
     [else
      (state (cons its-name-or-a-fighter (state-fighters state0)) (state-pills state0))]))

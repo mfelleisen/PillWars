@@ -8,6 +8,7 @@
 (require PillWars/AI/strategy-1)
 (require PillWars/World/handlers-for-distributed-nav)
 (require PillWars/World/constants)
+(require (only-in PillWars/Common/geometry TIE XWING))
 (require PillWars/Universe/handlers-for-universe) ;; accident 
 (require 2htdp/universe)
 
@@ -39,7 +40,7 @@
 ;; ---------------------------------------------------------------------------------------------------
 (define [ai-main i (server-ip LOCALHOST)]
   (define my-name (~a "Darth Vadder-" i))
-  (define start-with (dummy-state my-name))
+  (define start-with (dummy-state my-name TIE))
   (big-bang start-with
     [to-draw    (draw-state AI-BG)]
     [on-receive ai-receive]
@@ -48,7 +49,7 @@
     [close-on-stop 30]
     [stop-when  game-over? (draw-state-with-winners BG)]))
 
-#; {State State -> [Package State Action]}
+; {State State -> [Package State Action]}
 (define (ai-receive _ msg)
   (cond
     [(not (your-turn? msg)) msg]
@@ -61,7 +62,7 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; a turn-based game betweeen a human player and an AI 
 (define (local-main my-name (server-ip LOCALHOST))
-  (define start-with (create-plus my-name))
+  (define start-with (create-plus my-name XWING))
   (define end-with
     (big-bang start-with
       [to-draw    (strip (draw-explosions BG))]
@@ -124,7 +125,7 @@
     (define dv (create-fighter "Darth Vadder" 'tie))
     (define bf (create-fighter  "Benjamin" 'xwing))
     (define s* (plain-state))
-    (define s0 (add-fighter-to-front dv (add-fighter-to-front bf s*)))
+    (define s0 (add-fighter-to-front dv 'default (add-fighter-to-front bf 'default s*)))
     (define p* (first (state-pills s*)))
     (define s1 (eat-my-fighter s0 p*))
 
@@ -146,10 +147,10 @@
 ;; INVARIANT if `my-turn?` holds, then the first player in `state` is me 
 #; {type [Handler X] = (State Any ... -> X)}
 
-#; {String -> Plus}
+#; {String Symbol -> Plus}
 ;; add an AI player and set it up to go first 
-(define (create-plus my-name)
-  (plus #false (dummy-state my-name)))
+(define (create-plus my-name fighter-type)
+  (plus #false (dummy-state my-name fighter-type)))
 
 #; {Plus S-expression -> Plus}
 (define (human-receive _ msg)
@@ -176,9 +177,9 @@
   (winners (plus-state i)))
 
 ;; ---------------------------------------------------------------------------------------------------
-#; {String -> State}
-(define (dummy-state my-name)
-  (add-pill-at-fighter (add-fighter-to-front my-name (empty-state))))
+#; {String Symbol -> State}
+(define (dummy-state my-name fighter-type)
+  (add-pill-at-fighter (add-fighter-to-front my-name fighter-type (empty-state))))
   
 ;; ---------------------------------------------------------------------------------------------------
 (module+ server 

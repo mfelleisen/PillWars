@@ -6,10 +6,9 @@
 
 ;; ---------------------------------------------------------------------------------------------------
 (provide
- #; {type Fighter = [fighter Point Direction N String]}
  Fighter
+ Bs
 
- #; {String -> Fighter}
  ;; a random fighter 
  create-fighter 
 
@@ -18,20 +17,15 @@
  fighter-velocity
  fighter-score
  fighter-name
- 
- #; {Fighter Scene -> Scene}
+
  add-fighter
 
- #; {Fighter Radian -> Fighter}
  rotate-fighter
 
- #; {Fighter (U PositiveInteger -1) -> Fighter}
  eat-fighter
 
- #; {Fighter (0,1) -> Fighter}
  accelerate-fighter
 
- #; {Fighter -> Fighter}
  move-fighter)
 
 (module+ examples
