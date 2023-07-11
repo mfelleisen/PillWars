@@ -1,6 +1,11 @@
 #lang racket
 
-;; display and handle the game for a solo human player 
+(provide
+ #; {N -> UState}
+ universe-main
+
+ #; {name:String ip:String -> Any}
+ single-client)
 
 ;; ---------------------------------------------------------------------------------------------------
 (require PillWars/Common/action)
@@ -13,23 +18,20 @@
 (require 2htdp/universe)
 
 ;; ---------------------------------------------------------------------------------------------------
+(define server "antarctica.ccs.neu.edu")
+
 (define (main-run-locally my-name)
   (launch-many-worlds (universe-main 2) (local-main my-name) (ai-main 0)))
 
-(define (main-clients my-name)
-  (define server "antarctica.ccs.neu.edu")
+(define (main-clients my-name [server server])
   (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
 
-(define (single-client my-name)
-  (define server "antarctica.ccs.neu.edu")
+(define (main-clients-local my-name) (main-clients my-name LOCALHOST))
+
+(define (single-client my-name [server server])
   (local-main my-name server))
 
-(define (main-clients-local my-name)
-  (define server LOCALHOST)
-  (launch-many-worlds (local-main my-name server) (ai-main 0 server)))
-
 ;; ---------------------------------------------------------------------------------------------------
-#; {N -> USTate}
 ;; run a game for `n` players 
 (define (universe-main n)
   (universe (create-ustate)
@@ -185,6 +187,9 @@
 (module+ server 
   (universe-main 2))
 
+(module+ server3
+  (universe-main 3))
+
 (module+ client
   (main-clients "Benjamin"))
 
@@ -195,4 +200,4 @@
   (single-client "Matthias"))
 
 (module+ local
-  (main-clients-local "Benjamin"))
+  (main-clients "Benjamin" LOCALHOST))

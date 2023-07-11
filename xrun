@@ -1,0 +1,45 @@
+#! /bin/sh
+#| -*- racket -*-
+exec racket -tm "$0" -- ${1+"$@"}
+|#
+
+#lang racket
+
+;; ---------------------------------------------------------------------------------------------------
+(provide
+ main)
+
+(define HELP
+  #<< eos
+CMD LINE @ server
+  $ ./xrun server number-of-players-including-AI:NaturalString
+CMD LINE @ client
+  $ ./xrun client name-of-player:PlainString ip-address:PlainString 
+
+CMD LINE @ antarctica 
+  $ raco test -s server game-step2.rkt // for 2 players, one AI 
+  $ raco test -s server game-step2.rkt // for 3 players, one AI 
+
+CMD LINE @ anywhere 
+  $ raco test -s client game-step2.rkt // to connect as Benjamin via antarctica
+  $ raco test -s cf game-step2.rkt // to connect as Christopher via antarctica
+  $ raco test -s mf game-step2.rkt // to connect as Matthias via antarctica 
+
+In (Dr)Racket, to connect a player to a server @ antarctica
+  (require PillWars/game-step2)
+  (main-clientes name:String)
+ eos
+  )
+
+;; ---------------------------------------------------------------------------------------------------
+(require PillWars/game-step2)
+
+;; ---------------------------------------------------------------------------------------------------
+#; {String *-> Any}
+;; dispatch funcion to implement help 
+(define (main . args)
+  (match args
+    [(list "server" (app string->number (? natural? n))) (universe-main n)]
+    [(list (? string? name))                             (single-client name)]
+    [(list (? string? name) (? string? ip))              (single-client name ip)]
+    [_                                                   (displayln HELP)]))
